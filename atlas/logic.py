@@ -701,6 +701,7 @@ class Editor:
         """Function docstring."""
 
         tab = self._view.current_tab
+        print(tab.text())
         if not self.running_from_daily_tasks_file(tab):
             return
         current_tab_index = self._view.tabs.indexOf(tab)
@@ -709,7 +710,7 @@ class Editor:
         current_task = tab.text(row)
         current_task = re.sub(r'\d{2}:\d{2}' + self.settings['space'], "", current_task)
         # If it's a blank line
-        if len(current_task) < 2:
+        if current_task and current_task[0] != self.settings['open_task_prefix']:
             return
         contents = self.mark_ordinary_task_done(tab)
         tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(ENCODING))
