@@ -855,7 +855,24 @@ class Editor:
         return
 
     def add_adhoc_task(self):
-        """Function docstring."""
+        """Add an ad hoc (incoming) task to an LA file or a DT file.
+        
+        Add an ad hoc (incoming) task. There are two main situations: adding an
+        ad hoc task to a life area (LA) file, and adding an add hoc task to a
+        daily tasks (DT) file. Different values for `extra_line_before` and
+        `extra_line_after` are given in those two cases. Then there is also the
+        case of adding an already finished task. A finished task is added at the
+        end of a daily tasks file (with `extra_line_before` and 
+        `extra_line_after` suitably adjusted), while it is not added to a
+        portfolio file.
+        
+        Notes
+        -----
+        Consider splitting this method into two: one for adding the ad hoc task
+        to a life area file, and one for adding an ad hoc task to a daily tasks
+        file, since the logic below is getting a bit cumbersome.
+        
+        """
 
         result = self._view.show_add_adhoc_task()
         current_tab = self._view.current_tab
@@ -867,31 +884,38 @@ class Editor:
             lines = current_tab.text().split(NEWLINE)
             extra_line_before = ''
             extra_line_after = ''
+            # If active tab is a portfolio file
             if current_tab.path in self.settings['portfolio_files']:
+                # TODO Add a suitable message for why we're returning
+                if task_finished:
+                    return
                 ordering_string = self.settings['heading_prefix'] + \
                     self.settings['space']
                 ordering_string += self.settings['incoming_heading']
                 extra_line_before = NEWLINE
                 extra_line_after = ''
+            # TODO Check if active tab is a daily file (currently assumed!)
             else:
                 lines = lines[:-1]
                 ordering_string = self.settings['heading_prefix'] + \
                     self.settings['space']
                 ordering_string += self.settings['tasks_proposed_heading']
                 extra_line_before = NEWLINE
-                extra_line_after = NEWLINE
+                extra_line_after = ''
                 if task_finished:
                     extra_line_before = ''
                     extra_line_after = NEWLINE
             task_status_mark = self.settings['open_task_prefix']
             if task_finished:
                 task_status_mark = self.settings['done_task_prefix']
+            # Start constructing the task to add
             taux = extra_line_before + task_status_mark + self.settings['space']
             # Add task and duration
-            taux += result[0] + self.settings['space'] + self.settings['dur_prop'] + \
-                result[1]
+            taux += result[0] + self.settings['space'] + \
+                self.settings['dur_prop'] + result[1]
             # Add tags
             taux += self.settings['space'] + result[2] + extra_line_after
+            # Generate new contents
             contents = ""
             for line in lines:
                 contents += line + NEWLINE
@@ -900,6 +924,7 @@ class Editor:
             if task_finished:
                 contents += taux + NEWLINE
             contents = contents[:-1]
+            # Send contents to tab and save tab to file
             current_tab.SendScintilla(
                 current_tab.SCI_SETTEXT, contents.encode(ENCODING))
             self.save_tab_to_file(current_tab, show_error_messages=True)
