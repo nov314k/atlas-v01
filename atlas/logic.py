@@ -621,7 +621,7 @@ class Editor:
         self._view.zoom_out()
 
     def goto_tab_left(self):
-        """Change focus to one tab left; wraps around."""
+        """Change focus to one tab left. Allows for wrapping around."""
 
         tab = self._view.current_tab
         index = self._view.tabs.indexOf(tab)
@@ -632,7 +632,7 @@ class Editor:
         self._view.tabs.setCurrentIndex(next_tab)
 
     def goto_tab_right(self):
-        """Change focus to one tab right; wraps around."""
+        """Change focus to one tab right. Allows for wrapping around."""
 
         tab = self._view.current_tab
         index = self._view.tabs.indexOf(tab)
@@ -698,10 +698,24 @@ class Editor:
             self.settings['daily_files_archive_dir'] + fnae)
 
     def mark_task_done(self):
-        """Function docstring."""
+        """Mark current task as done.
+        
+        Marks the current task as done first in the daily tasks file, and then
+        also at task definition. This method can only be run from a daily tasks
+        file, and only on tasks that have an `open_task_prefix`. It calls 
+        `mark_ordinary_task_done()` to do the actual work. Special care is
+        taken to preserve the view. After marking a task as done, it calls
+        `analyse_tasks()` and `schedule_tasks()` to refresh the information.
+        
+        Notes
+        -----
+        In current code, care has been taken to avoid the bug where tab title is
+        incorrectly changed when switching between tabs. Be aware of this when
+        changing the code.
+
+        """
 
         tab = self._view.current_tab
-        print(tab.text())
         if not self.running_from_daily_tasks_file(tab):
             return
         current_tab_index = self._view.tabs.indexOf(tab)
