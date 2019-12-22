@@ -1,7 +1,7 @@
 # What is Atlas?
 
 > Happiness is the pursuit of worthwhile goals in key areas of life.
-> This pursuit is done by continuously completing smaller prioritized tasks.
+> This pursuit is done by continuously completing smaller and prioritized tasks.
 
 Atlas (Automatic Task List Administration System) is a personal task management tool. It automatically compiles a daily todo task list based on task definitions in all relevant areas of life, and personal preferences.
 
@@ -12,7 +12,7 @@ Atlas helps you to:
 * Focus on what needs to be done _right now_
 * Store new tasks and ideas for processing later on.
  
-![docs/images/1375061_width_x_height_451x500.png](docs/images/1375061_width_x_height_677x750.png)
+![docs/images/1375061_width_x_height_226x250.png](docs/images/1375061_width_x_height_677x750.png)
 
 # How does it work?
 
