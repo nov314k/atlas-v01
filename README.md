@@ -12,7 +12,7 @@ Atlas helps you to:
 * Focus on what needs to be done _right now_
 * Store new tasks and ideas for processing later on.
  
-![docs/images/1375061_width_x_height_226x250.png](docs/images/1375061_width_x_height_677x750.png)
+![docs/images/1375061_width_x_height_135x150.png](docs/images/1375061_width_x_height_135x150.png)
 
 # How does it work?
 
