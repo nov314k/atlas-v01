@@ -9,7 +9,7 @@ Atlas helps you to:
 * Focus on what needs to be done _right now_
 * Store new tasks and ideas for processing later on.
  
-[docs/images/1375061.png](docs/images/1375061.png)
+![docs/images/1375061.png](docs/images/1375061.png)
 
 # Atlas Workflow
 
