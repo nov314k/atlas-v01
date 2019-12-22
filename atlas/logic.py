@@ -724,12 +724,13 @@ class Editor:
         current_task = tab.text(row)
         current_task = re.sub(r'\d{2}:\d{2}' + self.settings['space'], "", current_task)
         # If it's a blank line
-        if current_task and current_task[0] != self.settings['open_task_prefix']:
+        if current_task \
+           and current_task[0] not in self.settings['active_task_prefixes']:
             return
         contents = self.mark_ordinary_task_done(tab)
         tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(ENCODING))
-        self.analyse_tasks()
-        self.schedule_tasks()
+        # self.analyse_tasks()
+        # self.schedule_tasks()
         self.mark_done_at_origin(current_task)
         self._view.tabs.setCurrentIndex(current_tab_index)
         tab.setFirstVisibleLine(first_visible_line)
@@ -1057,11 +1058,11 @@ class Editor:
             file_name += "0"
         file_name += str(target_day)
         file_name += self.settings['atlas_files_extension']
-        # Close tab with the same name if alreday copen
+        # Close tab with the same name if it is alreday copen
         idx = -1
         for i in range(self._view.tab_count):
-            if self._view.tabs.widget(i).path == self.settings['portfolio_base_dir'] + \
-                file_name:
+            if self._view.tabs.widget(i).path == \
+               self.settings['portfolio_base_dir'] + file_name:
                 idx = i
         if idx > -1:
             self._view.tabs.removeTab(idx)
