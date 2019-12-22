@@ -29,7 +29,7 @@ Atlas workflow consists of the following steps:
 
 As tasks are done during the day, they can be marked as done, or for further reschedulling. This information can be used for evaluating one's performance by Atlas.
 
-  # Atlas workflow
+# Atlas workflow
 
 <p align="center">
 <img src="docs/images/flowchart.png">
@@ -47,8 +47,8 @@ Atlas is in very early stages of development, and a lot of new features are in t
 
 If you like what you have read so far, here are some more detailed articles that explain Atlas in more detail:
 
-* What is an Atlas portfolio?
-* How to install Atlas on Windows?
+* [What is an Atlas portfolio?](docs/what-is-an-atlas-portfolio.md)
+* [How to install Atlas on Windows?](docs/how-to-install-atlas-on-windows.md)
 
 <p align="center">
 <img src="docs/images/1381638_200x344.png">
