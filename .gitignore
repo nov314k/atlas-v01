@@ -1,0 +1,9 @@
+Include
+Lib
+Scripts
+pyvenv.cfg
+atlas/__pycache__
+atlas/interface/__pycache__
+atlas/resources/__pycache__
+test-portfolio
+atlas/atlas.log

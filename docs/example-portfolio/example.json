@@ -1,0 +1,109 @@
+{
+  "atlas_settings_file": "../example-portfolio/example.json",
+  "atlas_session_file": "../example-portfolio/session.json",
+  "portfolio_base_dir": "../example-portfolio/",
+
+  "portfolio_files": [
+    "home.pmd.txt",
+    "work.pmd.txt",
+    "finadit.pmd.txt",
+    "car.pmd.txt",
+    "recreation.pmd.txt",
+    "social.txt",
+    "planning.txt"
+  ],
+
+  "tokens_in_sorting_order": [
+    "@mr",
+    "+cal",
+    "+work",
+    "@dr",
+    "+home",
+    "+finadit",
+    "+car",
+    "+recreation",
+    "+social",
+    "+planning",
+    "@tea",
+    "@dp",
+    "@er"
+  ],
+
+  "tab_order": [
+    "home.pmd.txt",
+    "work.pmd.txt",
+    "finadit.pmd.txt",
+    "car.pmd.txt",
+    "recreation.pmd.txt",
+    "social.txt",
+    "planning.txt",
+    "log/log.pmd.txt",
+    "auxiliaries/booked.pmd.txt",
+    "auxiliaries/daily.pmd.txt",
+    "auxiliaries/periodic.pmd.txt",
+    "auxiliaries/shlist.pmd.txt"
+  ],
+
+  "backup_dir": "example-portfolio/backup/",
+  "daily_files_archive_dir": "example-portfolio/archive/",
+
+  "portfolio_log_file": "log/log.pmd.txt",
+  "earned_times_file": "log/earned.pmd.txt",
+
+  "daily_file": "auxiliaries/daily.pmd.txt",
+  "booked_file": "auxiliaries/booked.pmd.txt",
+  "periodic_file": "auxiliaries/periodic.pmd.txt",
+  "shlist_file": "auxiliaries/shlist.pmd.txt",
+  "today_file": "auxiliaries/today.pmd.txt",
+
+  "space": " ",
+
+  "heading_prefix": "#",
+  "ttl_heading": "TTL #",
+  "incoming_heading": "INCOMING #",
+  "tasks_proposed_heading": "Tasks proposed",
+  "tasks_done_heading": "Tasks done",
+  "the_end_heading": "THE END #",
+  "special_heading_suffix": "#",
+
+  "due_prop": "due:",
+  "dur_prop": "dur:",
+  "rec_prop": "rec:",
+
+  "daily_rec_prop_val": "rec:1d",
+
+  "tag_prefix": "+",
+  "work_tag": "+work",
+  "incoming_tag": "+inc",
+
+  "cat_prefix": "@",
+  "shlist_cat": "@shlist",
+
+  "top_task_prefix": "t",
+  "open_task_prefix": "-",
+  "done_task_prefix": "x",
+  "info_task_prefix": ">",
+  "paused_task_prefix": "|",
+  "for_rescheduling_task_prefix": "r",
+  "rescheduled_periodic_task_prefix": "R",
+
+  "day_symbol": "d",
+  "month_symbol": "m",
+  "year_symbol": "y",
+
+  "time_symbol": "⏱",
+  "cost_symbol": "$",
+
+  "date_separator": "-",
+  "time_separator": ":",
+  "hour_separator": "h",
+
+  "log_entry_prefix": "LOG-",
+  "log_line_length": "80",
+
+  "earned_time_balance_form": "Total earned time (earned work time) = ",
+
+  "atlas_files_extension": ".pmd.txt",
+
+  "get_data_from_calendars": false
+}
