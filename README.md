@@ -12,9 +12,7 @@ Atlas helps you to:
 * Focus on what needs to be done _right now_
 * Store new tasks and ideas for processing later on.
  
-<center>
 ![docs/images/1375061_width_x_height_677x750.png](docs/images/1375061_width_x_height_677x750.png)
-</center>
 
 # How Does it Work?
 
@@ -27,7 +25,7 @@ Atlas workflow consists of the following steps:
 
 As tasks are done during the day, they can be marked as done, or for further reschedulling.
 
-
+![docs/images/flowchart.png](docs/images/flowchart.png)
 
 # Development Status and Limitations
 
