@@ -1,3 +1,5 @@
+> Hapiness is the pursuit of worthwhile goals in key areas of life
+
 # What is Atlas
 
 Atlas (Automatic Task List Administration System) is a personal task management tool. It automatically compiles a daily todo task list based on task definitions in all relevant areas of life, and personal preferences.
