@@ -14,16 +14,10 @@ Atlas helps you to:
 * Focus on what needs to be done _right now_
 * Store new tasks and ideas for processing later on.
 
-<span style="display:block;text-align:center">
-![docs/images/1375061_width_x_height_180x200.png](docs/images/1375061_width_x_height_180x200.png)
-</span>
-
 <p align="center">
 <img src="docs/images/1375061_width_x_height_180x200.png">
 </p>
  
-![docs/images/1375061_width_x_height_180x200.png](docs/images/1375061_width_x_height_180x200.png)
-
 # How does it work?
 
 Atlas workflow consists of the following steps:
@@ -37,7 +31,9 @@ As tasks are done during the day, they can be marked as done, or for further res
 
 This is schamatically shown in the diagram below.
 
-![docs/images/flowchart.png](docs/images/flowchart.png)
+<p align="center">
+<img src="docs/images/flowchart.png">
+</p>
 
 # Who is it intended for?
 
