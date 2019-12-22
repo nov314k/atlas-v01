@@ -1,7 +1,6 @@
 # What is Atlas?
 
 > Happiness is the pursuit of worthwhile goals in key areas of life.
-
 > This pursuit is done by continuously completing smaller prioritized tasks.
 
 Atlas (Automatic Task List Administration System) is a personal task management tool. It automatically compiles a daily todo task list based on task definitions in all relevant areas of life, and personal preferences.
@@ -13,9 +12,9 @@ Atlas helps you to:
 * Focus on what needs to be done _right now_
 * Store new tasks and ideas for processing later on.
  
-![docs/images/1375061_width_x_height_677x750.png](docs/images/1375061_width_x_height_677x750.png)
+![docs/images/1375061_width_x_height_451x500.png](docs/images/1375061_width_x_height_677x750.png)
 
-# How Does it Work?
+# How does it work?
 
 Atlas workflow consists of the following steps:
 
@@ -24,17 +23,21 @@ Atlas workflow consists of the following steps:
 3. Specify personal schedulling preferences
 4. Run Atlas to produce a daily todo task list.
 
-As tasks are done during the day, they can be marked as done, or for further reschedulling.
+As tasks are done during the day, they can be marked as done, or for further reschedulling. This information can be used for evaluating one's performance by Atlas.
+
+This is schamatically shown in the diagram below.
 
 ![docs/images/flowchart.png](docs/images/flowchart.png)
 
-# Development Status and Limitations
-
-Atlas is in very early stages of development, and a lot of new features are in the works.
+# Who is it intended for?
 
 Atlas is best suited for one's own personal use, rather than for large and complex projects.
 
-# Further Reading
+# Development status
+
+Atlas is in very early stages of development, and a lot of new features are in the works.
+
+# Further reading
 
 If you like what you have read so far, here are some more detailed articles that explain Atlas in more detail:
 
