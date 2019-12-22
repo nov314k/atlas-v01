@@ -43,12 +43,18 @@ Atlas is best suited for one's own personal use, rather than for large and compl
 
 Atlas is in very early stages of development, and a lot of new features are in the works.
 
+# Copyright and License
+
+Copyright © 2019 Novak Petrovic
+
+Atlas is free and open source software released under the [GNU General Public License Version 3](LICENSE.md).
+
 # Further reading
 
 If you like what you have read so far, here are some more detailed articles that explain Atlas in more detail:
 
 * [What is an Atlas portfolio?](docs/what-is-an-atlas-portfolio.md)
-* [Installing Atlas on Windows?](docs/installing-atlas-on-windows.md)
+* [Installing Atlas on Windows](docs/installing-atlas-on-windows.md)
 
 <p align="center">
 <img src="docs/images/1381638_200x344.png">
