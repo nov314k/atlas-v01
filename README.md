@@ -5,12 +5,18 @@
 
 Atlas (Automatic Task List Administration System) is a personal task management tool. It automatically compiles a daily todo task list based on task definitions in all relevant areas of life, and personal preferences.
 
+# What can Atlas do for you?
+
 Atlas helps you to:
 
 * Break up goals into tasks
 * Prioritize and sequence tasks
 * Focus on what needs to be done _right now_
 * Store new tasks and ideas for processing later on.
+
+<span style="display:block;text-align:center">
+![docs/images/1375061_width_x_height_180x200.png](docs/images/1375061_width_x_height_180x200.png)
+</span>
  
 ![docs/images/1375061_width_x_height_180x200.png](docs/images/1375061_width_x_height_180x200.png)
 
