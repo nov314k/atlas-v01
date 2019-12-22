@@ -15,7 +15,7 @@ Atlas helps you to:
 * Store new tasks and ideas for processing later on.
 
 <p align="center">
-<img src="docs/images/1375061_width_x_height_180x200.png">
+<img src="docs/images/1375061_width_x_height_226x250.png">
 </p>
  
 # How does it work?
@@ -29,7 +29,7 @@ Atlas workflow consists of the following steps:
 
 As tasks are done during the day, they can be marked as done, or for further reschedulling. This information can be used for evaluating one's performance by Atlas.
 
-This is schamatically shown in the diagram below.
+  # Atlas workflow
 
 <p align="center">
 <img src="docs/images/flowchart.png">
