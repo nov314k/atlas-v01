@@ -49,3 +49,7 @@ If you like what you have read so far, here are some more detailed articles that
 
 * What is an Atlas portfolio?
 * How to install Atlas on Windows?
+
+<p align="center">
+<img src="docs/images/1375061_width_x_height_200x344.png">
+</p>
