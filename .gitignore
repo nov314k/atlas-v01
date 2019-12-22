@@ -6,4 +6,5 @@ atlas/__pycache__
 atlas/interface/__pycache__
 atlas/resources/__pycache__
 test-portfolio
+atlas.log
 atlas/atlas.log

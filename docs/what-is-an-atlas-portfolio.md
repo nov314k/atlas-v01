@@ -10,3 +10,9 @@ By an 'area of life' we mean a group of tasks whose completion leads to a single
 * Buy new seat covers
 
 A single file may contain tasks related to one life area only, or a number of (smaller) life areas may be grouped in one file. All user-defined files, together with some files created by Atlas, make up a **portfolio**.
+
+[Return to README](../README.md)
+
+<p align="center">
+<img src="docs/images/1375061_width_x_height_226x250.png">
+</p>

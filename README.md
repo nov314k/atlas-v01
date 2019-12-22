@@ -48,7 +48,7 @@ Atlas is in very early stages of development, and a lot of new features are in t
 If you like what you have read so far, here are some more detailed articles that explain Atlas in more detail:
 
 * [What is an Atlas portfolio?](docs/what-is-an-atlas-portfolio.md)
-* [How to install Atlas on Windows?](docs/how-to-install-atlas-on-windows.md)
+* [Installing Atlas on Windows?](docs/installing-atlas-on-windows.md)
 
 <p align="center">
 <img src="docs/images/1381638_200x344.png">
