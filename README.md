@@ -17,6 +17,10 @@ Atlas helps you to:
 <span style="display:block;text-align:center">
 ![docs/images/1375061_width_x_height_180x200.png](docs/images/1375061_width_x_height_180x200.png)
 </span>
+
+<p align="center">
+<img src="docs/images/1375061_width_x_height_180x200.png">
+</p>
  
 ![docs/images/1375061_width_x_height_180x200.png](docs/images/1375061_width_x_height_180x200.png)
 
