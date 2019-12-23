@@ -729,6 +729,8 @@ class Editor:
             return
         contents = self.mark_ordinary_task_done(tab)
         tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(ENCODING))
+        # TODO Consider adding an option
+        # to determine whether the user wants this done
         # self.analyse_tasks()
         # self.schedule_tasks()
         self.mark_done_at_origin(current_task)
@@ -827,8 +829,10 @@ class Editor:
             contents += task + NEWLINE
         contents = contents[:-1]
         tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(ENCODING))
-        self.analyse_tasks()
-        self.schedule_tasks()
+        # TODO Consider adding an option
+        # to determine whether the user wants this done
+        # self.analyse_tasks()
+        # self.schedule_tasks()
         tab.setFirstVisibleLine(first_visible_line)
         tab.setCursorPosition(row, 0)
 
