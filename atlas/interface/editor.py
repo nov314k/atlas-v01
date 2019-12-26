@@ -12,6 +12,8 @@ from PyQt5.Qsci import QsciScintilla, QsciLexerCustom
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtWidgets import QApplication
+
+import data
 from interface.font import Font
 from logic import NEWLINE
 
@@ -128,12 +130,14 @@ class EditorPane(QsciScintilla):
         self.setIndentationGuides(True)
         self.setBackspaceUnindents(True)
         self.setTabWidth(4)
-        self.setEdgeColumn(79)
+        self.setEdgeColumn(119)
+        self.setEdgeMode(1)
+#        self.setEdgeColor(data.QColor(180, 180, 180, alpha=250))
         self.setMarginLineNumbers(0, True)
         self.setMarginWidth(0, 25)
         self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
         self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
-        self.SendScintilla(QsciScintilla.SCI_SETEDGECOLUMN, 80)
+#        self.SendScintilla(QsciScintilla.SCI_SETEDGECOLUMN, 80)
         self.setMarginSensitivity(0, True)
         self.setMarginSensitivity(1, True)
         self.setMarginWidth(4, 8)
