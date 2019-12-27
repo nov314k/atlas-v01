@@ -36,7 +36,7 @@ class MenuBar(QMenuBar):
         """Docstring."""
 
         self.addMenu("&Portfolio")
-        self.addMenu("&File")
+        self.addMenu("la&File")
         self.addMenu("&Task")
         self.addMenu("&Log")
 
@@ -167,6 +167,9 @@ class Window(QMainWindow):
         self.menu_bar = MenuBar(self.widget)
         self.status_bar = StatusBar(parent=self)
         self.tabs = FileTabs()
+        self.open_file_heading = "Open file"
+        self.save_file_heading = "Save file"
+        self.atlas_file_extension_for_saving = "Atlas (*.pmd.txt)"
 
 
     def setup(self):
@@ -207,20 +210,20 @@ class Window(QMainWindow):
         # File
         file_menu = menu_bar.addMenu("File")
 
-        new = QAction("New", self)
-        new.setShortcut("Ctrl+N")
-        file_menu.addAction(new)
-        actions['new'] = new
+        new_file = QAction("New file", self)
+        new_file.setShortcut("Ctrl+N")
+        file_menu.addAction(new_file)
+        actions['new_file'] = new_file
 
-        load = QAction("load", self)
-        load.setShortcut("Ctrl+O")
-        file_menu.addAction(load)
-        actions['load'] = load
+        open_file = QAction("Open file", self)
+        open_file.setShortcut("Ctrl+O")
+        file_menu.addAction(open_file)
+        actions['open_file'] = open_file
 
-        save = QAction("Save", self)
-        save.setShortcut("Ctrl+S")
-        file_menu.addAction(save)
-        actions['save'] = save
+        save_file = QAction("Save file", self)
+        save_file.setShortcut("Ctrl+S")
+        file_menu.addAction(save_file)
+        actions['save_file'] = save_file
 
         save_file_as = QAction("Save file as", self)
         file_menu.addAction(save_file_as)
@@ -413,28 +416,19 @@ class Window(QMainWindow):
 
         return self.tabs.currentWidget()
 
-    def get_load_path(self, folder, extensions='*', allow_previous=True):
-        """Docstring."""
+    def get_open_file_path(self, folder, extensions):
+        """Get the path of the file to load (dialog)."""
 
-        if allow_previous:
-            open_in = folder if self.previous_folder is None\
-                else self.previous_folder
-        else:
-            open_in = folder
-        path, _ = QFileDialog.getOpenFileName(
-            self.widget, "Open file", open_in, extensions)
-        if allow_previous:
-            self.previous_folder = os.path.dirname(path)
+        extensions = '*' + extensions
+        path, _ = QFileDialog.getOpenFileName(self.widget,
+            self.open_file_heading, folder, extensions)
         return path
 
-    def get_save_path(self, folder):
-        """Docstring."""
+    def get_save_file_path(self, folder):
+        """Get the path of the file to save (dialog)."""
 
-        path, _ = QFileDialog.getSaveFileName(
-            self.widget, "Save file",
-            folder if self.previous_folder is None else self.previous_folder,
-            "Python (*.py);;Other (*.*)", "Python (*.py)")
-        self.previous_folder = os.path.dirname(path)
+        path, _ = QFileDialog.getSaveFileName(self.widget,
+            self.open_file_heading, folder, self.atlas_file_extension_for_saving)
         return path
 
     def add_tab(self, path, text, newline):

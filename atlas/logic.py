@@ -228,9 +228,9 @@ class Editor:
 
         menu_actions = dict()
         # File
-        menu_actions['new'] = self.new
-        menu_actions['load'] = self.load
-        menu_actions['save'] = self.save
+        menu_actions['new_file'] = self.new_file
+        menu_actions['open_file'] = self.open_file
+        menu_actions['save_file'] = self.save_file
         menu_actions['save_file_as'] = self.save_file_as
         menu_actions['quit'] = self.quit
         # Move
@@ -295,7 +295,7 @@ class Editor:
         for old_path in self.settings['tab_order']:
             if old_path in launch_paths:
                 continue
-            self.load(old_path)
+            self.open_file(old_path)
         danas = datetime.datetime.now()
         file_name = str(danas.year)
         if danas.month < 10:
@@ -306,21 +306,33 @@ class Editor:
         file_name += str(danas.day)
         file_name += self.settings['atlas_files_extension']
         if os.path.isfile(self.settings['portfolio_base_dir'] + file_name):
-            self.load(self.settings['portfolio_base_dir'] + file_name)
+            self.open_file(self.settings['portfolio_base_dir'] + file_name)
 
-    def new(self):
+    def new_file(self):
         """Add a new tab."""
 
         self._view.add_tab(None, "", NEWLINE)
 
-    def load(self, path=None):
-        """Load a saved life area file into a new tab."""
+    def open_file(self, path=None):
+        """Open a file from disk in a new tab.
+        
+        If `path` is not specified, it displays a dialog for the user to choose
+        the path to open. Does not open an already opened file.
+        
+        Parameters
+        ----------
+        path : str
+            Path to save tab contents to.
+        
+        """
 
         # Get the path from the user if it's not defined
         if not path:
-            path = self._view.get_load_path(self.settings['portfolio_base_dir'],
-                                            self.settings['atlas_files_extension'],
-                                            allow_previous=True)
+            path = self._view.get_open_file_path(self.settings['portfolio_base_dir'],
+                                            self.settings['atlas_files_extension'])
+        # Was the dialog canceled?
+        if not path:
+            return
         # Do not open life area if it is already open
         for widget in self._view.widgets:
             if os.path.samefile(path, widget.path):
@@ -328,48 +340,64 @@ class Editor:
                 self._view.show_message(msg.format(os.path.basename(path)))
                 self._view.focus_tab(widget)
                 return
-        life_area_content = ''
+        file_content = ''
         with open(path, encoding=self.encoding) as faux:
             lines = faux.readlines()
             for line in lines:
-                life_area_content += line
-        self._view.add_tab(path, life_area_content, self.line_ending)
+                file_content += line
+        self._view.add_tab(path, file_content, self.line_ending)
 
-    def save(self, tab=None):
-        """Function docstring."""
+    def save_file(self, path=None, tab=None):
+        """Save file contained in a tab to disk.
         
-        if not tab:
-            tab = self._view.current_tab
-        if tab.path is None:
-            tab.path = self._view.get_save_path(self.settings['portfolio_base_dir'])
-        # If dialog to get file name is canceled
-        if tab.path:
-            with open(tab.path, 'w', encoding=self.encoding) as faux:
-                faux.writelines(tab.text())
-            tab.setModified(False)
-    
-    def save_file_as(self, tab_id=None):
-        """Function docstring."""
+        If `tab` is not specified, it assumes that we want to save the file
+        contained in the currently active tab. If it is a newly added tab
+        not save before (and hence a file does not exist on disk), a dialog is
+        displayed to choose the save path.
+        
+        Parameters
+        ----------
+        path : str
+            Path to save tab contents to.
+        tab : EditorPane
+            Tab containing the contents to save to `path`.
 
-        tab = None
-        if tab_id:
-            tab = self._view.tabs.widget(tab_id)
-        else:
-            tab = self._view.current_tab
-        if tab:
-            new_path = self._view.get_save_path(tab.path)
-            if new_path and new_path != tab.path:
-                if not os.path.basename(new_path).endswith('.py'):
-                    new_path += '.py'
-                for other_tab in self._view.widgets:
-                    if other_tab.path == new_path:
-                        message = "Could not rename file."
-                        information = "A file of that name" \
-                            " is already open in Atlas."
-                        self._view.show_message(message, information)
-                        return
-                tab.path = new_path
-                self.save()
+        """
+        
+        if not path:
+            if not tab:
+                tab = self._view.current_tab
+            # If it is a newly added tab, not saved before
+            if tab.path is None:
+                tab.path = self._view.get_save_file_path(self.settings['portfolio_base_dir'])
+            # Was the dialog canceled?
+            if not tab.path:
+                return
+            path = tab.path
+        with open(path, 'w', encoding=self.encoding) as faux:
+            faux.writelines(tab.text())
+        tab.setModified(False)
+    
+    def save_file_as(self):
+        """Save file in active tab to a different path.
+        
+        After getting the new path, it checks if the new path is already open.
+        If it is not open, calls `self.save_file()` with the new file name
+        provided.
+        
+        """
+
+        path = self._view.get_save_file_path(self.settings['portfolio_base_dir'])
+        # Was the dialog canceled?
+        if not path:
+            return
+        for widget in self._view.widgets:
+            if os.path.samefile(path, widget.path):
+                msg = "'{}' is open. Close if before overwriting."
+                self._view.show_message(msg.format(os.path.basename(path)))
+                self._view.focus_tab(widget)
+                return
+        self.save_file(path)
 
     def get_tab(self, path):
         """Function docstring."""
@@ -381,7 +409,7 @@ class Editor:
                 if tab_path == normalised_path:
                     self._view.focus_tab(tab)
                     return tab
-#        self.direct_load(path)
+#        self.direct_load_file(path)
         return self._view.current_tab
 
     def quit(self, fixme):
@@ -416,7 +444,7 @@ class Editor:
         if self._view.modified:
             for tab in self._view.widgets:
                 if tab.path and tab.isModified():
-                    self.save(tab)
+                    self.save_file(tab)
 
     def zoom_in(self):
         """Function docstring."""
@@ -740,7 +768,7 @@ class Editor:
             # Send contents to tab and save tab to file
             current_tab.SendScintilla(
                 current_tab.SCI_SETTEXT, contents.encode(ENCODING))
-            self.save_tab_to_file(current_tab, show_error_messages=True)
+            self.save_file(current_tab)
 
     def tag_current_line(self):
         """Function docstring."""
@@ -769,7 +797,7 @@ class Editor:
             current_tab.SCI_SETTEXT, contents.encode(ENCODING))
         current_tab.setFirstVisibleLine(first_visible_line)
         current_tab.setCursorPosition(row, col)
-        self.save_tab_to_file(current_tab, show_error_messages=True)
+        self.save_file(current_tab)
 
     def toggle_tt(self):
         """Function docstring."""
@@ -798,7 +826,7 @@ class Editor:
             tab.SCI_SETTEXT, contents.encode(ENCODING))
         tab.setFirstVisibleLine(first_visible_line)
         tab.setCursorPosition(row, col - 1)
-        self.save_tab_to_file(tab, show_error_messages=True)
+        self.save_file(tab)
 
     def generate_ttl(self, tab=None):
         """Generate Top Tasks List (TTL) for the current file (tab)."""
@@ -828,7 +856,7 @@ class Editor:
             contents += tasks[i] + NEWLINE
         contents = contents[:-1]
         tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
-        self.save(tab)
+        self.save_file(tab)
 
     def generate_ttls(self):
         """Generate Top Tasks Lists (TTLs) for all portfolio files."""
@@ -880,7 +908,7 @@ class Editor:
             self._view.tabs.removeTab(idx)
         shutil.copyfile(self.settings['today_file'],
                         self.settings['portfolio_base_dir'] + file_name)
-        self.load(self.settings['portfolio_base_dir'] + file_name)
+        self.open_file(self.settings['portfolio_base_dir'] + file_name)
 
     def analyse_tasks(self):
         """Function docstring."""
@@ -1045,7 +1073,7 @@ class Editor:
                 contents += log_entry + NEWLINE + NEWLINE + log_tab.text()
                 log_tab.SendScintilla(
                     log_tab.SCI_SETTEXT, contents.encode(ENCODING))
-                self.save_tab_to_file(log_tab, show_error_messages=True)
+                self.save_file(log_tab)
                 self._view.tabs.setCurrentIndex(current_tab_index)
         else:
             return
@@ -1108,7 +1136,7 @@ class Editor:
         daily_tab = self._view.tabs.widget(daily_tab_index)
         daily_tab.SendScintilla(daily_tab.SCI_SETTEXT,
                                 contents.encode(self.encoding))
-        self.save(daily_tab)
+        self.save_file(daily_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
 
 
@@ -1139,7 +1167,7 @@ class Editor:
         booked_tab = self._view.tabs.widget(booked_tab_index)
         booked_tab.SendScintilla(booked_tab.SCI_SETTEXT,
                                  contents.encode(self.encoding))
-        self.save(booked_tab)
+        self.save_file(booked_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
 
     def extract_periodic(self):
@@ -1169,7 +1197,7 @@ class Editor:
         periodic_tab = self._view.tabs.widget(periodic_tab_index)
         periodic_tab.SendScintilla(periodic_tab.SCI_SETTEXT,
                                    contents.encode(self.encoding))
-        self.save(periodic_tab)
+        self.save_file(periodic_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
 
 
@@ -1199,52 +1227,10 @@ class Editor:
         shlist_tab = self._view.tabs.widget(shlist_tab_index)
         shlist_tab.SendScintilla(shlist_tab.SCI_SETTEXT,
                                  contents.encode(self.encoding))
-        self.save(shlist_tab)
+        self.save_file(shlist_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
         
     # Utilities
-    
-    def sniff_newline_convention(text):
-        """Determine which line-ending convention predominates in the text.
-    
-        Windows usually has U+000D U+000A
-        Posix usually has U+000A
-        But editors can produce either convention from either platform. And
-        a file which has been copied and edited around might even have both!
-        """
-        candidates = [
-            ('\r\n', '\r\n'),
-            ('\n', '^\n|[^\r]\n')
-        ]
-        conventions_found = [(0, 1, os.linesep)]
-        for candidate, pattern in candidates:
-            instances = re.findall(pattern, text)
-            convention = (len(instances), candidate == os.linesep, candidate)
-            conventions_found.append(convention)
-        majority_convention = max(conventions_found)
-        return majority_convention[-1]
-    
-    def read_and_decode(filepath):
-        """Function docstring."""
-
-        sniffed_encoding = sniff_encoding(filepath)
-        if sniffed_encoding:
-            candidate_encodings = [sniffed_encoding]
-        else:
-            candidate_encodings = [ENCODING, locale.getpreferredencoding()]
-        with open(filepath, 'rb') as file_:
-            btext = file_.read()
-        for encoding in candidate_encodings:
-            try:
-                text = btext.decode(encoding)
-                break
-            except UnicodeDecodeError:
-                continue
-        else:
-            raise UnicodeDecodeError(encoding, btext, 0, 0, "Unable to decode")
-        newline = sniff_newline_convention(text)
-        text = re.sub('\r\n', NEWLINE, text)
-        return text, newline
     
     def format_log_entry(self, entry):
         """Format log entry so that each line does not exceed certain length.
