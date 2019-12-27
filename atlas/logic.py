@@ -311,65 +311,65 @@ class Editor:
     def new(self):
         """Add a new tab."""
 
-        default_text = ''
-        self._view.add_tab(None, default_text, NEWLINE)
+        self._view.add_tab(None, "", NEWLINE)
 
     def load(self, path=None):
         """Load a saved life area file into a new tab."""
 
+        # Get the path from the user if it's not defined
         if not path:
             path = self._view.get_load_path(self.settings['portfolio_base_dir'],
                                             self.settings['atlas_files_extension'],
                                             allow_previous=True)
-        if not os.path.isfile(path):
-            return
         # Do not open life area if it is already open
         for widget in self._view.widgets:
-            if widget.path is None:  # This is an unsaved file
-                continue
-            if not os.path.isfile(widget.path):
-                continue
             if os.path.samefile(path, widget.path):
                 msg = "'{}' is already open."
                 self._view.show_message(msg.format(os.path.basename(path)))
                 self._view.focus_tab(widget)
                 return
-        name, text, newline = None, None, None
-        try:
-            try:
-                life_area_content = ''
-                with open(path, encoding=self.encoding) as faux:
-                    lines = faux.readlines()
-                    for line in lines:
-                        life_area_content += line
-            except UnicodeDecodeError as ex:
-                logging.error("%s", ex)
-                msg = "UnicodeDecodeError in {}"
-                self._view.show_message(msg.format(os.path.basename(path)))
-                return
-        except OSError as ex:
-            logging.error("%s", ex)
-            msg = "OSError while loading {}".format(path)
-            self._view.show_message(msg)
+        life_area_content = ''
+        with open(path, encoding=self.encoding) as faux:
+            lines = faux.readlines()
+            for line in lines:
+                life_area_content += line
         self._view.add_tab(path, life_area_content, self.line_ending)
-
-    def _abspath(self, paths):
-        """Function docstring."""
-
-        result = []
-        for path in paths:
-            abspath = os.path.abspath(path)
-            if abspath not in result:
-                result.append(abspath)
-        return result
 
     def save(self, tab=None):
         """Function docstring."""
         
         if not tab:
             tab = self._view.current_tab
-        with open(tab.path, 'w', encoding=self.encoding) as faux:
-            faux.writelines(tab.text())
+        if tab.path is None:
+            tab.path = self._view.get_save_path(self.settings['portfolio_base_dir'])
+        # If dialog to get file name is canceled
+        if tab.path:
+            with open(tab.path, 'w', encoding=self.encoding) as faux:
+                faux.writelines(tab.text())
+            tab.setModified(False)
+    
+    def save_file_as(self, tab_id=None):
+        """Function docstring."""
+
+        tab = None
+        if tab_id:
+            tab = self._view.tabs.widget(tab_id)
+        else:
+            tab = self._view.current_tab
+        if tab:
+            new_path = self._view.get_save_path(tab.path)
+            if new_path and new_path != tab.path:
+                if not os.path.basename(new_path).endswith('.py'):
+                    new_path += '.py'
+                for other_tab in self._view.widgets:
+                    if other_tab.path == new_path:
+                        message = "Could not rename file."
+                        information = "A file of that name" \
+                            " is already open in Atlas."
+                        self._view.show_message(message, information)
+                        return
+                tab.path = new_path
+                self.save()
 
     def get_tab(self, path):
         """Function docstring."""
@@ -417,29 +417,6 @@ class Editor:
             for tab in self._view.widgets:
                 if tab.path and tab.isModified():
                     self.save(tab)
-
-    def save_file_as(self, tab_id=None):
-        """Function docstring."""
-
-        tab = None
-        if tab_id:
-            tab = self._view.tabs.widget(tab_id)
-        else:
-            tab = self._view.current_tab
-        if tab:
-            new_path = self._view.get_save_path(tab.path)
-            if new_path and new_path != tab.path:
-                if not os.path.basename(new_path).endswith('.py'):
-                    new_path += '.py'
-                for other_tab in self._view.widgets:
-                    if other_tab.path == new_path:
-                        message = "Could not rename file."
-                        information = "A file of that name" \
-                            " is already open in Atlas."
-                        self._view.show_message(message, information)
-                        return
-                tab.path = new_path
-                self.save()
 
     def zoom_in(self):
         """Function docstring."""
