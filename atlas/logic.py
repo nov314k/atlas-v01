@@ -1,4 +1,27 @@
-"""Docstring"""
+"""Implement Atlas logic.
+
+Copyright notice
+----------------
+Copyright (C) 2019 Novak Petrovic
+<npetrovic@gmail.com>
+
+This file is part of Atlas.
+For more details see the README (or README.md) file.
+
+Atlas is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License
+as published by the Free Software Foundation;
+either version 3 of the License, or (at your option) any later version.
+
+Atlas is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  
+"""
 
 import codecs
 import datetime
@@ -14,108 +37,10 @@ from dateutil.relativedelta import relativedelta
 import prepare_todays_tasks
 
 
-NEWLINE = '\n'
-ENCODING = 'utf-8'
+LINE_ENDING = '\n'
+NEWLINE = LINE_ENDING
 WORKING_MODE = 'pmdtxt'
 FILE_CHANGED_ASTERISK = '*'
-ENCODING_COOKIE_RE = re.compile(
-    '^[ \t\v]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+)')
-
-def write_and_flush(fileobj, content):
-    """Function docstring."""
-
-    fileobj.write(content)
-    fileobj.flush()
-    os.fsync(fileobj)
-
-def save_and_encode(text, filepath, newline=os.linesep):
-    """Function docstring."""
-
-    match = ENCODING_COOKIE_RE.match(text)
-    if match:
-        encoding = match.group(1)
-        try:
-            codecs.lookup(encoding)
-        except LookupError:
-            logging.error("Invalid codec in encoding cookie: %s", encoding)
-            encoding = ENCODING
-    else:
-        encoding = ENCODING
-
-    with open(filepath, 'w', encoding=encoding, newline='') as file_:
-        text_to_write = newline.join(l.rstrip(' ') for l in
-                                     text.splitlines()) + newline
-        write_and_flush(file_, text_to_write)
-
-def sniff_encoding(filepath):
-    """Determine the encoding of a file:
-
-    * If there is a BOM, return the appropriate encoding
-    * If there is a PEP 263 encoding cookie, return the appropriate encoding
-    * Otherwise return None for read_and_decode to attempt several defaults
-    """
-    boms = [
-        (codecs.BOM_UTF8, 'utf-8-sig'),
-        (codecs.BOM_UTF16_BE, 'utf-16'),
-        (codecs.BOM_UTF16_LE, 'utf-16'),
-    ]
-    with open(filepath, 'rb') as file_:
-        line = file_.readline()
-    for bom, encoding in boms:
-        if line.startswith(bom):
-            return encoding
-    default_encoding = locale.getpreferredencoding()
-    try:
-        uline = line.decode(default_encoding)
-    except UnicodeDecodeError:
-        pass
-    else:
-        match = ENCODING_COOKIE_RE.match(uline)
-        if match:
-            return match.group(1)
-    return None
-
-def sniff_newline_convention(text):
-    """Determine which line-ending convention predominates in the text.
-
-    Windows usually has U+000D U+000A
-    Posix usually has U+000A
-    But editors can produce either convention from either platform. And
-    a file which has been copied and edited around might even have both!
-    """
-    candidates = [
-        ('\r\n', '\r\n'),
-        ('\n', '^\n|[^\r]\n')
-    ]
-    conventions_found = [(0, 1, os.linesep)]
-    for candidate, pattern in candidates:
-        instances = re.findall(pattern, text)
-        convention = (len(instances), candidate == os.linesep, candidate)
-        conventions_found.append(convention)
-    majority_convention = max(conventions_found)
-    return majority_convention[-1]
-
-def read_and_decode(filepath):
-    """Function docstring."""
-
-    sniffed_encoding = sniff_encoding(filepath)
-    if sniffed_encoding:
-        candidate_encodings = [sniffed_encoding]
-    else:
-        candidate_encodings = [ENCODING, locale.getpreferredencoding()]
-    with open(filepath, 'rb') as file_:
-        btext = file_.read()
-    for encoding in candidate_encodings:
-        try:
-            text = btext.decode(encoding)
-            break
-        except UnicodeDecodeError:
-            continue
-    else:
-        raise UnicodeDecodeError(encoding, btext, 0, 0, "Unable to decode")
-    newline = sniff_newline_convention(text)
-    text = re.sub('\r\n', NEWLINE, text)
-    return text, newline
 
 def sort_tasks(tasks, tags_in_sorting_order):
     """Function docstring."""
@@ -168,6 +93,8 @@ class Editor:
 
         """
 
+        self.encoding = 'UTF-8'
+        self.line_ending = LINE_ENDING
         self._view = view
         self._status_bar = status_bar
         self.current_path = ''
@@ -368,7 +295,7 @@ class Editor:
         for old_path in self.settings['tab_order']:
             if old_path in launch_paths:
                 continue
-            self._load(old_path)
+            self.load(old_path)
         danas = datetime.datetime.now()
         file_name = str(danas.year)
         if danas.month < 10:
@@ -379,7 +306,7 @@ class Editor:
         file_name += str(danas.day)
         file_name += self.settings['atlas_files_extension']
         if os.path.isfile(self.settings['portfolio_base_dir'] + file_name):
-            self._load(self.settings['portfolio_base_dir'] + file_name)
+            self.load(self.settings['portfolio_base_dir'] + file_name)
 
     def new(self):
         """Add a new tab."""
@@ -387,105 +314,44 @@ class Editor:
         default_text = ''
         self._view.add_tab(None, default_text, NEWLINE)
 
-    def _load(self, path):
-        """Load a saved file into a new tab."""
+    def load(self, path=None):
+        """Load a saved life area file into a new tab."""
 
-        error = "The file contains characters Atlas expects to be encoded as "
-        error = error.format(ENCODING, locale.getpreferredencoding())
+        if not path:
+            path = self._view.get_load_path(self.settings['portfolio_base_dir'],
+                                            self.settings['atlas_files_extension'],
+                                            allow_previous=True)
         if not os.path.isfile(path):
             return
+        # Do not open life area if it is already open
         for widget in self._view.widgets:
-            if widget.path is None:  # this widget is an unsaved buffer
+            if widget.path is None:  # This is an unsaved file
                 continue
             if not os.path.isfile(widget.path):
                 continue
             if os.path.samefile(path, widget.path):
-                msg = "The file '{}' is already open."
+                msg = "'{}' is already open."
                 self._view.show_message(msg.format(os.path.basename(path)))
                 self._view.focus_tab(widget)
                 return
-        name, text, newline, file_mode = None, None, None, None
+        name, text, newline = None, None, None
         try:
-            if path.lower().endswith('.py'):
-                try:
-                    text, newline = read_and_decode(path)
-                except UnicodeDecodeError:
-                    message = "Atlas cannot read the characters in {}"
-                    filename = os.path.basename(path)
-                    self._view.show_message(message.format(filename), error)
-                    return
-                name = path
-            else:
-                # ~ path.lower().endswith('.pmd.txt'):
-                try:
-                    text, newline = read_and_decode(path)
-                except UnicodeDecodeError:
-                    message = "Atlas cannot read the characters in {}"
-                    filename = os.path.basename(path)
-                    self._view.show_message(message.format(filename), error)
-                    return
-                name = path
-            # ~ else:
-                # ~ for mode_name, mode in self.modes.items():
-                    # ~ try:
-                        # ~ text, newline = mode.open_file(path)
-                        # ~ if not path.endswith('.hex'):
-                            # ~ name = path
-                    # ~ except Exception as exc:
-                        # ~ logging.error(f"Error when mode {mode_name} try to open"
-                                      # ~ f" the {path} file.", exc_info=True)
-                    # ~ else:
-                        # ~ if text:
-                            # ~ file_mode = mode_name
-                            # ~ break
-                # ~ else:
-                    # ~ message = "Atlas was not able to open this file "
-                    # ~ info = "Currently Atlas only works with Python/hex files."
-                    # ~ self._view.show_message(message, info)
-                    # ~ return
-        except OSError:
-            message = "Could not load {}".format(path)
-            info = "Does this file exist?\n" \
-            "If it does, do you have permission to read it?\n\n" \
-                "Please check and try again."
-            self._view.show_message(message, info)
-        else:
-            if file_mode and self.mode != file_mode:
-                message = "Is this a file?"
-                info = "It looks like this could be a file.\n\n" \
-                "Would you like to change Atlas to the mode?"
-            self._view.add_tab(
-                name, text, newline)
-
-    def get_dialog_directory(self, default=None):
-        """Function docstring."""
-
-        if default is not None:
-            folder = default
-        elif self.current_path and os.path.isdir(self.current_path):
-            folder = self.current_path
-        else:
-            current_file_path = ''
-            workspace_path = current_file_path
-            tab = self._view.current_tab
-            if tab and tab.path:
-                current_file_path = os.path.dirname(os.path.abspath(tab.path))
-            folder = current_file_path if current_file_path else workspace_path
-        return folder
-
-    def load(self, *args, default_path=None):
-        """Function docstring."""
-
-        extensions = ['txt', 'pmd.txt', 'py']
-        extensions = '*.{} *.{}'.format(' *.'.join(extensions),
-                                        ' *.'.join(extensions).upper())
-        folder = self.get_dialog_directory(default_path)
-        allow_previous = not bool(default_path)
-        path = self._view.get_load_path(folder, extensions,
-                                        allow_previous=allow_previous)
-        if path:
-            self.current_path = os.path.dirname(os.path.abspath(path))
-            self._load(path)
+            try:
+                life_area_content = ''
+                with open(path, encoding=self.encoding) as faux:
+                    lines = faux.readlines()
+                    for line in lines:
+                        life_area_content += line
+            except UnicodeDecodeError as ex:
+                logging.error("%s", ex)
+                msg = "UnicodeDecodeError in {}"
+                self._view.show_message(msg.format(os.path.basename(path)))
+                return
+        except OSError as ex:
+            logging.error("%s", ex)
+            msg = "OSError while loading {}".format(path)
+            self._view.show_message(msg)
+        self._view.add_tab(path, life_area_content, self.line_ending)
 
     def _abspath(self, paths):
         """Function docstring."""
@@ -497,48 +363,13 @@ class Editor:
                 result.append(abspath)
         return result
 
-    def save_tab_to_file(self, tab, show_error_messages=True):
+    def save(self, tab=None):
         """Function docstring."""
-
-        try:
-            save_and_encode(tab.text(), tab.path, tab.newline)
-        except OSError as ex:
-            logging.error(ex)
-        except UnicodeEncodeError:
-            error_message = "Could not save file (encoding problem)"
-            information = "Unable to convert all the characters." \
-                " If you have an enc line at top of file, remove it and try again."
-            logging.error(error_message)
-            logging.error(information)
-        else:
-            error_message = information = None
-        if error_message and show_error_messages:
-            self._view.show_message(error_message, information)
-        else:
-            tab.setModified(False)
-            self.show_status_message("Saved file: {}".format(tab.path))
-
-    def save(self, default=None):
-        """Function docstring."""
-
-        tab = self._view.current_tab
-        if tab is None:
-            return
-        if not tab.path:
-            # Unsaved file.
-            folder = self.get_dialog_directory(default)
-            path = self._view.get_save_path(folder)
-#            if path and self.check_for_shadow_module(path):
-#                message = "You cannot use the filename '{}'".format(
-#                    os.path.basename(path))
-#                info = "This name is already used by another part of Python."
-#                self._view.show_message(message, info)
-#                return
-            tab.path = path
-        if tab.path:
-            self.save_tab_to_file(tab)
-        else:
-            tab.path = None
+        
+        if not tab:
+            tab = self._view.current_tab
+        with open(tab.path, 'w', encoding=self.encoding) as faux:
+            faux.writelines(tab.text())
 
     def get_tab(self, path):
         """Function docstring."""
@@ -585,7 +416,7 @@ class Editor:
         if self._view.modified:
             for tab in self._view.widgets:
                 if tab.path and tab.isModified():
-                    self.save_tab_to_file(tab, show_error_messages=False)
+                    self.save(tab)
 
     def save_file_as(self, tab_id=None):
         """Function docstring."""
@@ -659,7 +490,7 @@ class Editor:
             for task in tasks:
                 contents += task + NEWLINE
             contents = contents[:-1]
-            tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(ENCODING))
+            tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
             tab.setFirstVisibleLine(first_visible_line)
             tab.setCursorPosition(row - 1, 0)
 
@@ -680,7 +511,7 @@ class Editor:
             for task in tasks:
                 contents += task + NEWLINE
             contents = contents[:-1]
-            tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(ENCODING))
+            tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
             tab.setFirstVisibleLine(first_visible_line)
             tab.setCursorPosition(row + 1, 0)
 
@@ -728,7 +559,7 @@ class Editor:
            and current_task[0] not in self.settings['active_task_prefixes']:
             return
         contents = self.mark_ordinary_task_done(tab)
-        tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(ENCODING))
+        tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
         # TODO Consider adding an option
         # to determine whether the user wants this done
         # self.analyse_tasks()
@@ -803,7 +634,7 @@ class Editor:
         if tab_idx > -1:
             self._view.tabs.setCurrentIndex(tab_idx)
             tab = self._view.tabs.widget(tab_idx)
-            tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(ENCODING))
+            tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
 
     def mark_task_for_rescheduling(self, mark_rescheduled_periodic_task=False):
         """Function docstring."""
@@ -828,7 +659,7 @@ class Editor:
         for task in tasks:
             contents += task + NEWLINE
         contents = contents[:-1]
-        tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(ENCODING))
+        tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
         # TODO Consider adding an option
         # to determine whether the user wants this done
         # self.analyse_tasks()
@@ -1019,8 +850,8 @@ class Editor:
         for i, _ in enumerate(tasks):
             contents += tasks[i] + NEWLINE
         contents = contents[:-1]
-        tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(ENCODING))
-        self.save_tab_to_file(tab, show_error_messages=True)
+        tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
+        self.save(tab)
 
     def generate_ttls(self):
         """Generate Top Tasks Lists (TTLs) for all portfolio files."""
@@ -1072,7 +903,7 @@ class Editor:
             self._view.tabs.removeTab(idx)
         shutil.copyfile(self.settings['today_file'],
                         self.settings['portfolio_base_dir'] + file_name)
-        self._load(self.settings['portfolio_base_dir'] + file_name)
+        self.load(self.settings['portfolio_base_dir'] + file_name)
 
     def analyse_tasks(self):
         """Function docstring."""
@@ -1299,8 +1130,8 @@ class Editor:
         self._view.tabs.setCurrentIndex(daily_tab_index)
         daily_tab = self._view.tabs.widget(daily_tab_index)
         daily_tab.SendScintilla(daily_tab.SCI_SETTEXT,
-                                contents.encode(ENCODING))
-        self.save_tab_to_file(daily_tab, show_error_messages=True)
+                                contents.encode(self.encoding))
+        self.save(daily_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
 
 
@@ -1330,8 +1161,8 @@ class Editor:
         self._view.tabs.setCurrentIndex(booked_tab_index)
         booked_tab = self._view.tabs.widget(booked_tab_index)
         booked_tab.SendScintilla(booked_tab.SCI_SETTEXT,
-                                 contents.encode(ENCODING))
-        self.save_tab_to_file(booked_tab, show_error_messages=True)
+                                 contents.encode(self.encoding))
+        self.save(booked_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
 
     def extract_periodic(self):
@@ -1360,8 +1191,8 @@ class Editor:
         self._view.tabs.setCurrentIndex(periodic_tab_index)
         periodic_tab = self._view.tabs.widget(periodic_tab_index)
         periodic_tab.SendScintilla(periodic_tab.SCI_SETTEXT,
-                                   contents.encode(ENCODING))
-        self.save_tab_to_file(periodic_tab, show_error_messages=True)
+                                   contents.encode(self.encoding))
+        self.save(periodic_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
 
 
@@ -1390,10 +1221,54 @@ class Editor:
         self._view.tabs.setCurrentIndex(shlist_tab_index)
         shlist_tab = self._view.tabs.widget(shlist_tab_index)
         shlist_tab.SendScintilla(shlist_tab.SCI_SETTEXT,
-                                 contents.encode(ENCODING))
-        self.save_tab_to_file(shlist_tab, show_error_messages=True)
+                                 contents.encode(self.encoding))
+        self.save(shlist_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
+        
+    # Utilities
+    
+    def sniff_newline_convention(text):
+        """Determine which line-ending convention predominates in the text.
+    
+        Windows usually has U+000D U+000A
+        Posix usually has U+000A
+        But editors can produce either convention from either platform. And
+        a file which has been copied and edited around might even have both!
+        """
+        candidates = [
+            ('\r\n', '\r\n'),
+            ('\n', '^\n|[^\r]\n')
+        ]
+        conventions_found = [(0, 1, os.linesep)]
+        for candidate, pattern in candidates:
+            instances = re.findall(pattern, text)
+            convention = (len(instances), candidate == os.linesep, candidate)
+            conventions_found.append(convention)
+        majority_convention = max(conventions_found)
+        return majority_convention[-1]
+    
+    def read_and_decode(filepath):
+        """Function docstring."""
 
+        sniffed_encoding = sniff_encoding(filepath)
+        if sniffed_encoding:
+            candidate_encodings = [sniffed_encoding]
+        else:
+            candidate_encodings = [ENCODING, locale.getpreferredencoding()]
+        with open(filepath, 'rb') as file_:
+            btext = file_.read()
+        for encoding in candidate_encodings:
+            try:
+                text = btext.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+        else:
+            raise UnicodeDecodeError(encoding, btext, 0, 0, "Unable to decode")
+        newline = sniff_newline_convention(text)
+        text = re.sub('\r\n', NEWLINE, text)
+        return text, newline
+    
     def format_log_entry(self, entry):
         """Format log entry so that each line does not exceed certain length.
 
