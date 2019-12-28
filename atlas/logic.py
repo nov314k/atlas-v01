@@ -33,7 +33,7 @@ import re
 import shutil
 import sys
 from dateutil.relativedelta import relativedelta
-#from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox
 import prepare_todays_tasks
 
 
@@ -232,6 +232,7 @@ class Editor:
         menu_actions['open_file'] = self.open_file
         menu_actions['save_file'] = self.save_file
         menu_actions['save_file_as'] = self.save_file_as
+        menu_actions['close_file'] = self.close_file
         menu_actions['quit'] = self.quit
         # Move
         menu_actions['goto_tab_left'] = self.goto_tab_left
@@ -398,6 +399,32 @@ class Editor:
                 self._view.focus_tab(widget)
                 return
         self.save_file(path)
+    
+    def close_file(self):
+        """Close the current file (remove the current tab).
+        
+        Returning `False` indicates that the user, when answering to the
+        question, chose 'Cancel'. Returning `True` indicates that the user
+        answered with either 'Yes' or 'No'. This is primarily used by `quit()`
+        to indicate whether to abort the quitting process if a user choses
+        'Cancel'. If a user choses 'Cancel', they decide that they want to deal
+        with the changes in the file in the normal program operation mode
+        ('manually').
+        
+        """
+
+        current_tab = self._view.current_tab
+        current_tab_idx = self._view.tabs.indexOf(current_tab)
+        if current_tab.isModified():
+            answer = self._view.show_yes_no_question(
+                "Do you want to save changes to the file before closing?",
+                "File:    " + current_tab.path)
+            if answer == QMessageBox.Yes:
+                self.save_file()
+            if answer == QMessageBox.Cancel:
+                return False
+        self._view.tabs.removeTab(current_tab_idx)
+        return True
 
     def get_tab(self, path):
         """Function docstring."""
@@ -413,38 +440,21 @@ class Editor:
         return self._view.current_tab
 
     def quit(self, fixme):
-        """Function docstring."""
-
-        self.autosave()
-        # if self._view.modified:
-        # # Alert the user to handle unsaved work.
-        # msg = "There is un-saved work."
-        # result = self._view.show_confirmation(msg)
-        # if result == QMessageBox.Cancel:
-        # if args and hasattr(args[0], 'ignore'):
-        # # The function is handling an event, so ignore it.
-        # args[0].ignore()
-        # return
-        session = {
-            'zoom_level': self._view.zoom_position,
-            'window': {
-                'x': self._view.x(),
-                'y': self._view.y(),
-                'w': self._view.width(),
-                'h': self._view.height(),
-            }
-        }
-        with open(self.settings['atlas_session_file'], 'w') as out:
-            json.dump(session, out, indent=2)
+        """Quit Atlas.
+        
+        Confirm if and how the user wants to save changes. Saves session
+        settings before exiting.
+        
+        """
+        
+        for tab in self._view.widgets:
+            current_tab_index = self._view.tabs.indexOf(tab)
+            self._view.tabs.setCurrentIndex(current_tab_index)
+            user_chose_yes_or_no = self.close_file()
+            if not user_chose_yes_or_no:
+                return
+        self.save_session_settings()      
         sys.exit(0)
-
-    def autosave(self):
-        """Function docstring."""
-
-        if self._view.modified:
-            for tab in self._view.widgets:
-                if tab.path and tab.isModified():
-                    self.save_file(tab)
 
     def zoom_in(self):
         """Function docstring."""
@@ -691,8 +701,10 @@ class Editor:
         self.mark_done_at_origin(task)
         self._view.tabs.setCurrentIndex(tab_index)
         self.mark_task_for_rescheduling(True)
-        self.analyse_tasks()
-        self.schedule_tasks()
+        # TODO Consider adding an option
+        # to determine whether the user wants this done
+        #self.analyse_tasks()
+        #self.schedule_tasks()
         return
 
     def add_adhoc_task(self):
@@ -1401,3 +1413,16 @@ class Editor:
         or self.settings['rec_prop'] in word:
             return True
         return False
+
+    def save_session_settings(self):
+        session = {
+            'zoom_level': self._view.zoom_position,
+            'window': {
+                'x': self._view.x(),
+                'y': self._view.y(),
+                'w': self._view.width(),
+                'h': self._view.height(),
+            }
+        }
+        with open(self.settings['atlas_session_file'], 'w') as out:
+            json.dump(session, out, indent=2)

@@ -123,16 +123,10 @@ class FileTabs(QTabWidget):
         self.tabCloseRequested.connect(self.removeTab)
         self.currentChanged.connect(self.change_tab)
 
-    def removeTab(self, tab_id):
-        """Docstring."""
+    def remove_tab(self, tab_idx):
+        """Remove tab with index `tab_idx`."""
 
-        window = self.nativeParentWidget()
-        modified = self.widget(tab_id).isModified()
-        if modified:
-            msg = "There is un-saved work."
-            if window.show_confirmation(msg) == QMessageBox.Cancel:
-                return
-        super(FileTabs, self).removeTab(tab_id)
+        super(FileTabs, self).removeTab(tab_idx)
 
     def change_tab(self, tab_id):
         """Docstring."""
@@ -190,13 +184,13 @@ class Window(QMainWindow):
         self.showMaximized()
 
     def setup_menu(self, functions):
-        """Docstring."""
+        """Set up horizontal drop-down menu bar."""
 
         actions = dict()
         menu_bar = self.menuBar()
+        
         # Portfolio
         portfolio_menu = menu_bar.addMenu("Portfolio")
-
         portfolio_menu.addAction(QAction("New portfolio", self))
         portfolio_menu.addAction(QAction("Open portfolio", self))
         portfolio_menu.addAction(QAction("Save portfolio", self))
@@ -209,7 +203,7 @@ class Window(QMainWindow):
 
         # File
         file_menu = menu_bar.addMenu("File")
-
+        
         new_file = QAction("New file", self)
         new_file.setShortcut("Ctrl+N")
         file_menu.addAction(new_file)
@@ -228,6 +222,11 @@ class Window(QMainWindow):
         save_file_as = QAction("Save file as", self)
         file_menu.addAction(save_file_as)
         actions['save_file_as'] = save_file_as
+        
+        close_file = QAction("Close file", self)
+        close_file.setShortcut("Ctrl+W")
+        file_menu.addAction(close_file)
+        actions['close_file'] = close_file
 
         # Move
         move_menu = menu_bar.addMenu("Move")
@@ -508,6 +507,27 @@ class Window(QMainWindow):
             message_box.setIcon(message_box.Warning)
         message_box.setStandardButtons(message_box.Cancel | message_box.Ok)
         message_box.setDefaultButton(message_box.Cancel)
+        return message_box.exec()
+    
+    def show_yes_no_question(self, message, information=None):
+        """Ask the user a yes/no/cancel question.
+        
+        Answering 'Yes' allows for performing a certain action; answering 'No'
+        allows for not performing the same action. Answering with 'Cancel'
+        aborts the question and goes back to normal program operation mode so
+        that the user can make their decision in that mode before proceeding.
+        
+        """
+
+        message_box = QMessageBox(self)
+        message_box.setWindowTitle("Atlas")
+        message_box.setText(message)
+        if information:
+            message_box.setInformativeText(information)
+        message_box.setIcon(message_box.Question)
+        message_box.setStandardButtons(
+            message_box.Yes | message_box.No | message_box.Cancel)
+        message_box.setDefaultButton(message_box.Yes)
         return message_box.exec()
 
     def update_title(self, filename=None):
