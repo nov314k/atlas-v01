@@ -767,7 +767,7 @@ class Editor:
             contents = contents[:-1]
             # Send contents to tab and save tab to file
             current_tab.SendScintilla(
-                current_tab.SCI_SETTEXT, contents.encode(ENCODING))
+                current_tab.SCI_SETTEXT, contents.encode(self.encoding))
             self.save_file(current_tab)
 
     def tag_current_line(self):
@@ -856,7 +856,7 @@ class Editor:
             contents += tasks[i] + NEWLINE
         contents = contents[:-1]
         tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
-        self.save_file(tab)
+        self.save_file(tab.path, tab)
 
     def generate_ttls(self):
         """Generate Top Tasks Lists (TTLs) for all portfolio files."""
@@ -960,7 +960,7 @@ class Editor:
         for i, _ in enumerate(tasks):
             contents += tasks[i] + NEWLINE
         contents = contents[:-1]
-        tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(ENCODING))
+        tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
 
     def schedule_tasks(self):
         """Function docstring."""
@@ -991,7 +991,7 @@ class Editor:
         for task in scheduled_tasks:
             contents += task + NEWLINE
         contents = contents[:-1]
-        tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(ENCODING))
+        tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
 
     def extract_earned_time(self):
         """Function docstring."""
@@ -1136,7 +1136,7 @@ class Editor:
         daily_tab = self._view.tabs.widget(daily_tab_index)
         daily_tab.SendScintilla(daily_tab.SCI_SETTEXT,
                                 contents.encode(self.encoding))
-        self.save_file(daily_tab)
+        self.save_file(daily_tab.path, daily_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
 
 
@@ -1167,7 +1167,7 @@ class Editor:
         booked_tab = self._view.tabs.widget(booked_tab_index)
         booked_tab.SendScintilla(booked_tab.SCI_SETTEXT,
                                  contents.encode(self.encoding))
-        self.save_file(booked_tab)
+        self.save_file(booked_tab.path, booked_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
 
     def extract_periodic(self):
@@ -1197,7 +1197,7 @@ class Editor:
         periodic_tab = self._view.tabs.widget(periodic_tab_index)
         periodic_tab.SendScintilla(periodic_tab.SCI_SETTEXT,
                                    contents.encode(self.encoding))
-        self.save_file(periodic_tab)
+        self.save_file(periodic_tab.path, periodic_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
 
 
@@ -1227,7 +1227,7 @@ class Editor:
         shlist_tab = self._view.tabs.widget(shlist_tab_index)
         shlist_tab.SendScintilla(shlist_tab.SCI_SETTEXT,
                                  contents.encode(self.encoding))
-        self.save_file(shlist_tab)
+        self.save_file(shlist_tab.path, shlist_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
         
     # Utilities
