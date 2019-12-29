@@ -365,9 +365,9 @@ class Editor:
 
         """
         
+        if not tab:
+            tab = self._view.current_tab
         if not path:
-            if not tab:
-                tab = self._view.current_tab
             # If it is a newly added tab, not saved before
             if tab.path is None:
                 tab.path = self._view.get_save_file_path(self.settings['portfolio_base_dir'])
@@ -393,7 +393,8 @@ class Editor:
         if not path:
             return
         for widget in self._view.widgets:
-            if os.path.samefile(path, widget.path):
+            if widget.path == path:
+            # if os.path.samefile(path, widget.path):
                 msg = "'{}' is open. Close if before overwriting."
                 self._view.show_message(msg.format(os.path.basename(path)))
                 self._view.focus_tab(widget)
