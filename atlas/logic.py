@@ -354,7 +354,9 @@ class Editor:
         If `tab` is not specified, it assumes that we want to save the file
         contained in the currently active tab. If it is a newly added tab
         not save before (and hence a file does not exist on disk), a dialog is
-        displayed to choose the save path.
+        displayed to choose the save path. Even though the path of a tab is
+        contained in the tab, due to different usage scenarios for this
+        function, it is best to keep these two parameters separate.
         
         Parameters
         ----------
