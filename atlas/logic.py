@@ -495,7 +495,7 @@ class Editor:
             contents = ""
             for task in tasks:
                 contents += task + NEWLINE
-            contents = contents[:-1]
+            contents = contents.rstrip(NEWLINE)
             tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
             tab.setFirstVisibleLine(first_visible_line)
             tab.setCursorPosition(row - 1, 0)
@@ -516,7 +516,7 @@ class Editor:
             contents = ""
             for task in tasks:
                 contents += task + NEWLINE
-            contents = contents[:-1]
+            contents = contents.rstrip(NEWLINE)
             tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
             tab.setFirstVisibleLine(first_visible_line)
             tab.setCursorPosition(row + 1, 0)
@@ -592,7 +592,7 @@ class Editor:
         contents = ""
         for task in tasks:
             contents += task + NEWLINE
-        contents = contents[:-1]
+        contents = contents.rstrip(NEWLINE)
         return contents
 
     def mark_done_at_origin(self, task):
@@ -636,7 +636,7 @@ class Editor:
         contents = ""
         for task_ in tasks:
             contents += task_ + NEWLINE
-        contents = contents[:-1]
+        contents = contents.rstrip(NEWLINE)
         if tab_idx > -1:
             self._view.tabs.setCurrentIndex(tab_idx)
             tab = self._view.tabs.widget(tab_idx)
@@ -664,7 +664,7 @@ class Editor:
         contents = ""
         for task in tasks:
             contents += task + NEWLINE
-        contents = contents[:-1]
+        contents = contents.rstrip(NEWLINE)
         tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
         # TODO Consider adding an option
         # to determine whether the user wants this done
@@ -767,7 +767,7 @@ class Editor:
                     contents += taux
             if task_finished:
                 contents += taux + NEWLINE
-            contents = contents[:-1]
+            contents = contents.rstrip(NEWLINE)
             # Send contents to tab and save tab to file
             current_tab.SendScintilla(
                 current_tab.SCI_SETTEXT, contents.encode(self.encoding))
@@ -795,7 +795,7 @@ class Editor:
                 col = len(line)
             else:
                 contents += lines[i] + NEWLINE
-        contents = contents[:-1]
+        contents = contents.rstrip(NEWLINE)
         current_tab.SendScintilla(
             current_tab.SCI_SETTEXT, contents.encode(ENCODING))
         current_tab.setFirstVisibleLine(first_visible_line)
@@ -824,7 +824,7 @@ class Editor:
         contents = ""
         for i, _ in enumerate(new_lines):
             contents += new_lines[i] + NEWLINE
-        contents = contents[:-1]
+        contents = contents.rstrip(NEWLINE)
         tab.SendScintilla(
             tab.SCI_SETTEXT, contents.encode(ENCODING))
         tab.setFirstVisibleLine(first_visible_line)
@@ -857,7 +857,7 @@ class Editor:
         contents = ""
         for i, _ in enumerate(tasks):
             contents += tasks[i] + NEWLINE
-        contents = contents[:-1]
+        contents = contents.rstrip(NEWLINE)
         tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
         self.save_file(tab.path, tab)
 
@@ -962,7 +962,7 @@ class Editor:
         contents = ""
         for i, _ in enumerate(tasks):
             contents += tasks[i] + NEWLINE
-        contents = contents[:-1]
+        contents = contents.rstrip(NEWLINE)
         tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
 
     def schedule_tasks(self):
@@ -993,7 +993,7 @@ class Editor:
         contents = ""
         for task in scheduled_tasks:
             contents += task + NEWLINE
-        contents = contents[:-1]
+        contents = contents.rstrip(NEWLINE)
         tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
 
     def extract_earned_time(self):
@@ -1134,7 +1134,7 @@ class Editor:
         contents = ""
         for i, _ in enumerate(daily_tasks):
             contents += daily_tasks[i] + NEWLINE
-        contents = contents[:-1]
+        contents = contents.rstrip(NEWLINE)
         self._view.tabs.setCurrentIndex(daily_tab_index)
         daily_tab = self._view.tabs.widget(daily_tab_index)
         daily_tab.SendScintilla(daily_tab.SCI_SETTEXT,
@@ -1165,7 +1165,7 @@ class Editor:
         contents = ""
         for i, _ in enumerate(booked_tasks):
             contents += booked_tasks[i] + NEWLINE
-        contents = contents[:-1]
+        contents = contents.rstrip(NEWLINE)
         self._view.tabs.setCurrentIndex(booked_tab_index)
         booked_tab = self._view.tabs.widget(booked_tab_index)
         booked_tab.SendScintilla(booked_tab.SCI_SETTEXT,
@@ -1195,7 +1195,7 @@ class Editor:
         contents = ""
         for i, _ in enumerate(periodic_tasks):
             contents += periodic_tasks[i] + NEWLINE
-        contents = contents[:-1]
+        contents = contents.rstrip(NEWLINE)
         self._view.tabs.setCurrentIndex(periodic_tab_index)
         periodic_tab = self._view.tabs.widget(periodic_tab_index)
         periodic_tab.SendScintilla(periodic_tab.SCI_SETTEXT,
@@ -1225,7 +1225,7 @@ class Editor:
         contents = ""
         for i, _ in enumerate(shlist_tasks):
             contents += shlist_tasks[i] + NEWLINE
-        contents = contents[:-1]
+        contents = contents.rstrip(NEWLINE)
         self._view.tabs.setCurrentIndex(shlist_tab_index)
         shlist_tab = self._view.tabs.widget(shlist_tab_index)
         shlist_tab.SendScintilla(shlist_tab.SCI_SETTEXT,
