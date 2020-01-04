@@ -40,76 +40,76 @@ class MenuBar(QMenuBar):
         self.addMenu("&Task")
         self.addMenu("&Log")
 
-class ButtonBar(QToolBar):
-    """Docstring."""
-
-    def __init__(self, parent):
-        """Docstring."""
-
-        super().__init__(parent)
-        self.setMovable(False)
-        self.setIconSize(QSize(64, 64))
-        self.setToolButtonStyle(3)
-        self.setContextMenuPolicy(Qt.PreventContextMenu)
-        self.setObjectName('StandardToolBar')
-        self.reset()
-
-    def reset(self):
-        """Docstring."""
-
-        self.slots = {}
-        self.clear()
-
-    def change_mode(self):
-        """Docstring."""
-
-        self.reset()
-        self.addAction(name='toggle_tt', display_name="Toggle\nTT",
-                       tool_text="")
-        self.addAction(name='generate_ttl', display_name="Generate\nTTL",
-                       tool_text="")
-        self.addAction(name='prepare_day_plan',
-                       display_name="Prepare\nday\nplan", tool_text="")
-        self.addAction(name='analyse_tasks', display_name="Analyse\ntasks",
-                       tool_text="")
-        self.addAction(name='mark_task_done', display_name="Mark\ntask\ndone",
-                       tool_text="")
-        self.addAction(name='mark_task_for_rescheduling',
-                       display_name="Mark\ntask\nfor\nrescheduling",
-                       tool_text="")
-        self.addAction(name='reschedule_periodic_task',
-                       display_name="Reschedule\nperiodic\ntask", tool_text="")
-        self.addAction(name='extract_earned_time',
-                       display_name="Extract\nearned\ntime", tool_text="")
-
-    def set_responsive_mode(self, width, height):
-        """Docstring."""
-
-        font_size = DEFAULT_FONT_SIZE
-        if width < 1124 and height > 600:
-            self.setIconSize(QSize(48, 48))
-        elif height < 600 and width < 940:
-            font_size = 10
-            self.setIconSize(QSize(32, 32))
-        else:
-            self.setIconSize(QSize(64, 64))
-        stylesheet = 'QWidget{font-size: ' + str(font_size) + 'px;}'
-        self.setStyleSheet(stylesheet)
-
-    def addAction(self, name, display_name, tool_text):
-        """Docstring."""
-
-        action = QAction(QIcon(resource_filename('resources', 'images/')),
-                         display_name, self, toolTip=tool_text)
-        super().addAction(action)
-        self.slots[name] = action
-
-    def connect(self, name, handler, shortcut=None):
-        """Docstring."""
-
-        self.slots[name].pyqtConfigure(triggered=handler)
-        if shortcut:
-            self.slots[name].setShortcut(QKeySequence(shortcut))
+# class ButtonBar(QToolBar):
+#     """Docstring."""
+# 
+#    def __init__(self, parent):
+#        """Docstring."""
+# 
+#        super().__init__(parent)
+#        self.setMovable(False)
+#        self.setIconSize(QSize(64, 64))
+#        self.setToolButtonStyle(3)
+#        self.setContextMenuPolicy(Qt.PreventContextMenu)
+#        self.setObjectName('StandardToolBar')
+#        self.reset()
+# 
+#    def reset(self):
+#        """Docstring."""
+# 
+#        self.slots = {}
+#        self.clear()
+# 
+#    def change_mode(self):
+#        """Docstring."""
+# 
+#        self.reset()
+#        self.addAction(name='toggle_tt', display_name="Toggle\nTT",
+#                       tool_text="")
+#        self.addAction(name='generate_ttl', display_name="Generate\nTTL",
+#                       tool_text="")
+#        self.addAction(name='prepare_day_plan',
+#                       display_name="Prepare\nday\nplan", tool_text="")
+#        self.addAction(name='analyse_tasks', display_name="Analyse\ntasks",
+#                       tool_text="")
+#        self.addAction(name='mark_task_done', display_name="Mark\ntask\ndone",
+#                       tool_text="")
+#        self.addAction(name='mark_task_for_rescheduling',
+#                       display_name="Mark\ntask\nfor\nrescheduling",
+#                       tool_text="")
+#        self.addAction(name='reschedule_periodic_task',
+#                       display_name="Reschedule\nperiodic\ntask", tool_text="")
+#        self.addAction(name='extract_earned_time',
+#                       display_name="Extract\nearned\ntime", tool_text="")
+# 
+#    def set_responsive_mode(self, width, height):
+#        """Docstring."""
+# 
+#        font_size = DEFAULT_FONT_SIZE
+#        if width < 1124 and height > 600:
+#            self.setIconSize(QSize(48, 48))
+#        elif height < 600 and width < 940:
+#            font_size = 10
+#            self.setIconSize(QSize(32, 32))
+#        else:
+#            self.setIconSize(QSize(64, 64))
+#        stylesheet = 'QWidget{font-size: ' + str(font_size) + 'px;}'
+#        self.setStyleSheet(stylesheet)
+# 
+#    def addAction(self, name, display_name, tool_text):
+#        """Docstring."""
+# 
+#        action = QAction(QIcon(resource_filename('resources', 'images/')),
+#                         display_name, self, toolTip=tool_text)
+#        super().addAction(action)
+#        self.slots[name] = action
+# 
+#    def connect(self, name, handler, shortcut=None):
+#        """Docstring."""
+# 
+#        self.slots[name].pyqtConfigure(triggered=handler)
+#        if shortcut:
+#            self.slots[name].setShortcut(QKeySequence(shortcut))
 
 
 class FileTabs(QTabWidget):
@@ -157,7 +157,7 @@ class Window(QMainWindow):
         super().__init__(parent)
         self.widget = QWidget()
         self.read_only_tabs = False
-        self.button_bar = ButtonBar(self.widget)
+#        self.button_bar = ButtonBar(self.widget)
         self.menu_bar = MenuBar(self.widget)
         self.status_bar = StatusBar(parent=self)
         self.tabs = FileTabs()
@@ -180,7 +180,7 @@ class Window(QMainWindow):
         self.tabs.setMovable(True)
         self.setCentralWidget(self.tabs)
         self.setStatusBar(self.status_bar)
-        self.addToolBar(self.button_bar)
+#        self.addToolBar(self.button_bar)
         self.showMaximized()
 
     def setup_menu(self, functions):

@@ -206,7 +206,7 @@ class Editor:
         self.restore_view()
         self.setup_menu()
 #        self._view.setup_menu([self._prkno])
-        self.setup_button_bar(self.mode)
+#        self.setup_button_bar(self.mode)
         self.open_portfolio()
 
     def restore_view(self):
@@ -267,27 +267,27 @@ class Editor:
         menu_actions['extract_shlist'] = self.extract_shlist
         self._view.setup_menu(menu_actions)
 
-    def setup_button_bar(self, mode):
-        """Set up button bar below drop-down menues.
-
-        Only key commands (functions) are repeated in the button bar.
-
-        """
-
-        self.mode = mode
-        self._view.change_mode()
-        # self._view.change_mode(WORKING_MODE)
-        button_bar = self._view.button_bar
-        button_bar.connect('toggle_tt', self.toggle_tt, "")
-        button_bar.connect('generate_ttl', self.generate_ttl, "")
-        button_bar.connect('prepare_day_plan', self.prepare_day_plan, "")
-        button_bar.connect('analyse_tasks', self.analyse_tasks, "")
-        button_bar.connect('mark_task_done', self.mark_task_done, "")
-        button_bar.connect('mark_task_for_rescheduling',
-                           self.mark_task_for_rescheduling, "")
-        button_bar.connect('reschedule_periodic_task',
-                           self.reschedule_periodic_task, "")
-        button_bar.connect('extract_earned_time', self.extract_earned_time, "")
+#   def setup_button_bar(self, mode):
+#       """Set up button bar below drop-down menues.
+#
+#        Only key commands (functions) are repeated in the button bar.
+#
+#        """
+#
+#        self.mode = mode
+#        self._view.change_mode()
+#        # self._view.change_mode(WORKING_MODE)
+#        button_bar = self._view.button_bar
+#         button_bar.connect('toggle_tt', self.toggle_tt, "")
+#         button_bar.connect('generate_ttl', self.generate_ttl, "")
+#         button_bar.connect('prepare_day_plan', self.prepare_day_plan, "")
+#         button_bar.connect('analyse_tasks', self.analyse_tasks, "")
+#         button_bar.connect('mark_task_done', self.mark_task_done, "")
+#         button_bar.connect('mark_task_for_rescheduling',
+#                            self.mark_task_for_rescheduling, "")
+#         button_bar.connect('reschedule_periodic_task',
+#                            self.reschedule_periodic_task, "")
+#         button_bar.connect('extract_earned_time', self.extract_earned_time, "")
 
     def open_portfolio(self):
         """Function docstring."""
