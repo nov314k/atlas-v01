@@ -214,8 +214,6 @@ class Editor:
 
         with open(self.settings['atlas_session_file']) as view_file:
             view = json.load(view_file)
-        self._view.zoom_position = view['zoom_level']
-        self._view.set_zoom()
         old_window = view.get('window', {})
         self._view.size_window(**old_window)
 
@@ -458,16 +456,6 @@ class Editor:
                 return
         self.save_session_settings()      
         sys.exit(0)
-
-    def zoom_in(self):
-        """Function docstring."""
-
-        self._view.zoom_in()
-
-    def zoom_out(self):
-        """Function docstring."""
-
-        self._view.zoom_out()
 
     def goto_tab_left(self):
         """Change focus to one tab left. Allows for wrapping around."""
@@ -1419,7 +1407,6 @@ class Editor:
 
     def save_session_settings(self):
         session = {
-            'zoom_level': self._view.zoom_position,
             'window': {
                 'x': self._view.x(),
                 'y': self._view.y(),

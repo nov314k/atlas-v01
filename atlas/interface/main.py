@@ -146,10 +146,6 @@ class Window(QMainWindow):
     icon = 'icon'
     timer = None
     # ~ plotter = None
-    zooms = ('xs', 's', 'm', 'l', 'xl', 'xxl', 'xxxl')  # levels of zoom.
-    zoom_position = 2  # current level of zoom (as position in zooms tuple).
-    _zoom_in = pyqtSignal(str)
-    _zoom_out = pyqtSignal(str)
     open_file = pyqtSignal(str)
     previous_folder = None
 
@@ -373,42 +369,6 @@ class Window(QMainWindow):
         for key in actions:
             actions[key].triggered.connect(functions[key])
 
-    def wheel_event(self, event):
-        """Docstring."""
-
-        modifiers = QApplication.keyboardModifiers()
-        if modifiers == Qt.ControlModifier:
-            zoom = event.angleDelta().y() > 0
-            if zoom:
-                self.zoom_in()
-            else:
-                self.zoom_out()
-            event.ignore()
-
-    def set_zoom(self):
-        """Docstring."""
-
-        self._zoom_in.emit(self.zooms[self.zoom_position])
-
-    def zoom_in(self):
-        """Docstring."""
-
-        self.zoom_position = min(self.zoom_position + 1, len(self.zooms) - 1)
-        self._zoom_in.emit(self.zooms[self.zoom_position])
-
-    def zoom_out(self):
-        """Docstring."""
-
-        self.zoom_position = max(self.zoom_position - 1, 0)
-        self._zoom_out.emit(self.zooms[self.zoom_position])
-
-    def connect_zoom(self, widget):
-        """Docstring."""
-
-        self._zoom_in.connect(widget.set_zoom)
-        self._zoom_out.connect(widget.set_zoom)
-        widget.set_zoom(self.zooms[self.zoom_position])
-
     @property
     def current_tab(self):
         """Docstring."""
@@ -452,7 +412,6 @@ class Window(QMainWindow):
             self.open_file.emit(file)
 
         self.tabs.setCurrentIndex(new_tab_index)
-        self.connect_zoom(new_tab)
         new_tab.setFocus()
         if self.read_only_tabs:
             new_tab.setReadOnly(self.read_only_tabs)

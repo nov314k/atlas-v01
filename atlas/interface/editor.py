@@ -142,21 +142,6 @@ class EditorPane(QsciScintilla):
         self.setMarginWidth(4, 8)
         self.setMarginSensitivity(4, True)
         self.selectionChanged.connect(self.selection_change_listener)
-        self.set_zoom()
-
-    def set_zoom(self, size='m'):
-        """Docstring."""
-
-        sizes = {
-            'xs': -4,
-            's': -2,
-            'm': 1,
-            'l': 4,
-            'xl': 8,
-            'xxl': 16,
-            'xxxl': 48,
-        }
-        self.zoomTo(sizes[size])
 
     @property
     def label(self):
