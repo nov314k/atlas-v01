@@ -119,6 +119,9 @@ class FileTabs(QTabWidget):
         """Docstring."""
 
         super(FileTabs, self).__init__()
+        self.setStyleSheet("""
+            font-size: 12px;
+        """)
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.removeTab)
         self.currentChanged.connect(self.change_tab)
