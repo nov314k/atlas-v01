@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import codecs
+import configparser
 import datetime
 import json
 import locale
@@ -99,7 +100,6 @@ class Editor:
         self._status_bar = status_bar
         self.current_path = ''
         self.mode = WORKING_MODE
-        self.settings = dict()
         self.read_settings_file(settings_file)
 
     def read_settings_file(self, settings_file):
@@ -110,94 +110,9 @@ class Editor:
 
         """
 
-        with open(settings_file, 'r') as settings:
-            ext_settings = json.load(settings)
-            self.settings['atlas_settings_file'] = \
-                ext_settings['atlas_settings_file']
-            self.settings['atlas_session_file'] = \
-                ext_settings['atlas_session_file']
-            self.settings['portfolio_base_dir'] = \
-                ext_settings['portfolio_base_dir']
-            self.settings['portfolio_files'] = \
-                [self.settings['portfolio_base_dir'] + f
-                 for f in ext_settings['portfolio_files']]
-            self.settings['portfolio_log_file'] = \
-                self.settings['portfolio_base_dir'] + \
-                ext_settings['portfolio_log_file']
-            self.settings['earned_times_file'] = \
-                self.settings['portfolio_base_dir'] + \
-                ext_settings['earned_times_file']
-            self.settings['backup_dir'] = ext_settings['backup_dir']
-            self.settings['daily_files_archive_dir'] = \
-                ext_settings['daily_files_archive_dir']
-            self.settings['daily_file'] = self.settings['portfolio_base_dir'] + \
-                ext_settings['daily_file']
-            self.settings['booked_file'] = \
-                self.settings['portfolio_base_dir'] + ext_settings['booked_file']
-            self.settings['periodic_file'] = \
-                self.settings['portfolio_base_dir'] + ext_settings['periodic_file']
-            self.settings['shlist_file'] = \
-                self.settings['portfolio_base_dir'] + ext_settings['shlist_file']
-            self.settings['today_file'] = self.settings['portfolio_base_dir'] + \
-                ext_settings['today_file']
-            self.settings['tab_order'] = \
-                [self.settings['portfolio_base_dir'] + f
-                 for f in ext_settings['tab_order']]
-            self.settings['tokens_in_sorting_order'] = \
-                ext_settings['tokens_in_sorting_order']
-            self.settings['space'] = ext_settings['space']
-            self.settings['heading_prefix'] = ext_settings['heading_prefix']
-            self.settings['ttl_heading'] = ext_settings['ttl_heading']
-            self.settings['incoming_heading'] = ext_settings['incoming_heading']
-            self.settings['tasks_proposed_heading'] = \
-                ext_settings['tasks_proposed_heading']
-            self.settings['tasks_done_heading'] = ext_settings['tasks_done_heading']
-            self.settings['the_end_heading'] = ext_settings['the_end_heading']
-            self.settings['special_heading_suffix'] = \
-                ext_settings['special_heading_suffix']
-            self.settings['due_prop'] = ext_settings['due_prop']
-            self.settings['dur_prop'] = ext_settings['dur_prop']
-            self.settings['rec_prop'] = ext_settings['rec_prop']
-            self.settings['daily_rec_prop_val'] = ext_settings['daily_rec_prop_val']
-            self.settings['tag_prefix'] = ext_settings['tag_prefix']
-            self.settings['work_tag'] = ext_settings['work_tag']
-            self.settings['incoming_tag'] = ext_settings['incoming_tag']
-            self.settings['cat_prefix'] = ext_settings['cat_prefix']
-            self.settings['shlist_cat'] = ext_settings['shlist_cat']
-            self.settings['top_task_prefix'] = ext_settings['top_task_prefix']
-            self.settings['open_task_prefix'] = ext_settings['open_task_prefix']
-            self.settings['done_task_prefix'] = ext_settings['done_task_prefix']
-            self.settings['info_task_prefix'] = ext_settings['info_task_prefix']
-            self.settings['paused_task_prefix'] = ext_settings['paused_task_prefix']
-            self.settings['for_rescheduling_task_prefix'] = \
-                ext_settings['for_rescheduling_task_prefix']
-            self.settings['rescheduled_periodic_task_prefix'] = \
-                ext_settings['rescheduled_periodic_task_prefix']
-            self.settings['day_symbol'] = ext_settings['day_symbol']
-            self.settings['month_symbol'] = ext_settings['month_symbol']
-            self.settings['year_symbol'] = ext_settings['year_symbol']
-            self.settings['time_symbol'] = ext_settings['time_symbol']
-            self.settings['cost_symbol'] = ext_settings['cost_symbol']
-            self.settings['date_separator'] = ext_settings['date_separator']
-            self.settings['time_separator'] = ext_settings['time_separator']
-            self.settings['log_entry_prefix'] = ext_settings['log_entry_prefix']
-            self.settings['log_line_length'] = int(ext_settings['log_line_length'])
-            self.settings['earned_time_balance_form'] = \
-                ext_settings['earned_time_balance_form']
-            self.settings['atlas_files_extension'] = \
-                ext_settings["atlas_files_extension"]
-            self.settings['get_data_from_calendars'] = \
-                ext_settings['get_data_from_calendars']
-            if self.settings['get_data_from_calendars']:
-                self.settings['late_events_file'] = ext_settings['late_events_file']
-                self.settings['coming_events_file'] = ext_settings['coming_events_file']
-                self.settings['all_calendars_dump_file'] = \
-                    ext_settings['all_calendars_dump_file']
-                self.settings['incoming_tasks_file'] = ext_settings['incoming_tasks_file']
-            self.settings['active_task_prefixes'] = \
-                [self.settings['open_task_prefix'], self.settings['top_task_prefix']]
-            self.settings['reserved_word_prefixes'] = \
-                [self.settings['tag_prefix'], self.settings['cat_prefix']]
+        self.config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
+        self.config.read(settings_file)
+        self.cfg = self.config['USER']
 
     def setup(self):
         """Function docstring."""
@@ -212,7 +127,7 @@ class Editor:
     def restore_view(self):
         """Function docstring."""
 
-        with open(self.settings['atlas_session_file']) as view_file:
+        with open(self.cfg['atlas_session_file']) as view_file:
             view = json.load(view_file)
         old_window = view.get('window', {})
         self._view.size_window(**old_window)
@@ -291,7 +206,7 @@ class Editor:
         """Function docstring."""
 
         launch_paths = set()
-        for old_path in self.settings['tab_order']:
+        for old_path in self.cfg['tab_order'].split('\n'):
             if old_path in launch_paths:
                 continue
             self.open_file(old_path)
@@ -303,9 +218,9 @@ class Editor:
         if danas.day < 10:
             file_name += "0"
         file_name += str(danas.day)
-        file_name += self.settings['atlas_files_extension']
-        if os.path.isfile(self.settings['portfolio_base_dir'] + file_name):
-            self.open_file(self.settings['portfolio_base_dir'] + file_name)
+        file_name += self.cfg['atlas_files_extension']
+        if os.path.isfile(self.cfg['portfolio_base_dir'] + file_name):
+            self.open_file(self.cfg['portfolio_base_dir'] + file_name)
 
     def new_file(self):
         """Add a new tab."""
@@ -327,12 +242,12 @@ class Editor:
 
         # Get the path from the user if it's not defined
         if not path:
-            path = self._view.get_open_file_path(self.settings['portfolio_base_dir'],
-                                            self.settings['atlas_files_extension'])
+            path = self._view.get_open_file_path(self.cfg['portfolio_base_dir'],
+                                            self.cfg['atlas_files_extension'])
         # Was the dialog canceled?
         if not path:
             return
-        # Do not open life area if it is already open
+        # Do not open a life area if it is already open
         for widget in self._view.widgets:
             if os.path.samefile(path, widget.path):
                 msg = "'{}' is already open."
@@ -370,7 +285,7 @@ class Editor:
         if not path:
             # If it is a newly added tab, not saved before
             if tab.path is None:
-                tab.path = self._view.get_save_file_path(self.settings['portfolio_base_dir'])
+                tab.path = self._view.get_save_file_path(self.cfg['portfolio_base_dir'])
             # Was the dialog canceled?
             if not tab.path:
                 return
@@ -388,7 +303,7 @@ class Editor:
         
         """
 
-        path = self._view.get_save_file_path(self.settings['portfolio_base_dir'])
+        path = self._view.get_save_file_path(self.cfg['portfolio_base_dir'])
         # Was the dialog canceled?
         if not path:
             return
@@ -531,8 +446,8 @@ class Editor:
         ctab_idx = self._view.tabs.indexOf(ctab)
         self._view.tabs.removeTab(ctab_idx)
         shutil.move(
-            self.settings['portfolio_base_dir'] + fnae,
-            self.settings['daily_files_archive_dir'] + fnae)
+            self.cfg['portfolio_base_dir'] + fnae,
+            self.cfg['daily_files_archive_dir'] + fnae)
 
     def mark_task_done(self):
         """Mark current task as done.
@@ -559,10 +474,10 @@ class Editor:
         first_visible_line = tab.firstVisibleLine()
         row = tab.getCursorPosition()[0]
         current_task = tab.text(row)
-        current_task = re.sub(r'\d{2}:\d{2}' + self.settings['space'], "", current_task)
+        current_task = re.sub(r'\d{2}:\d{2}' + self.cfg['space'][1], "", current_task)
         # If it's a blank line
         if current_task \
-           and current_task[0] not in self.settings['active_task_prefixes']:
+           and current_task[0] not in self.cfg['active_task_prefixes'].split('\n'):
             return
         contents = self.mark_ordinary_task_done(tab)
         tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
@@ -585,9 +500,9 @@ class Editor:
             tasks = tasks[:-1]
         current_task = tasks[row]
         del tasks[row]
-        taux = self.settings['done_task_prefix'] + self.settings['space'] + \
+        taux = self.cfg['done_task_prefix'] + self.cfg['space'][1] + \
             now.strftime("%Y-%m-%d")
-        taux += self.settings['space'] + current_task
+        taux += self.cfg['space'][1] + current_task
         tasks.append(taux)
         contents = ""
         for task in tasks:
@@ -599,25 +514,25 @@ class Editor:
         """Function docstring."""
 
         if len(task) < 1 \
-           or task[0] not in self.settings['active_task_prefixes'] \
-           or self.settings['daily_rec_prop_val'] in task:
+           or task[0] not in self.cfg['active_task_prefixes'].split('\n') \
+           or self.cfg['daily_rec_prop_val'] in task:
             return
         idx = -1
         tasks = []
         tab_idx = -1
         task_found = False
         for i in range(self._view.tab_count):
-            if self._view.tabs.widget(i).path in self.settings['portfolio_files']:
+            if self._view.tabs.widget(i).path in self.cfg['portfolio_files'].split('\n'):
                 tasks = self._view.tabs.widget(i).text().split(NEWLINE)
                 in_ttl = False
                 for j, _ in enumerate(tasks):
                     if tasks[j]:
-                        if tasks[j][0] == self.settings['heading_prefix'] \
-                           and self.settings['ttl_heading'] in tasks[j]:
+                        if tasks[j][0] == self.cfg['heading_prefix'] \
+                           and self.cfg['ttl_heading'] in tasks[j]:
                             in_ttl = True
-                        elif tasks[j][0] == self.settings['heading_prefix']:
+                        elif tasks[j][0] == self.cfg['heading_prefix']:
                             in_ttl = False
-                        if tasks[j][0] in self.settings['active_task_prefixes'] \
+                        if tasks[j][0] in self.cfg['active_task_prefixes'].split('\n') \
                            and self.get_task_text(tasks[j]) in task \
                            and not task_found \
                            and not in_ttl:
@@ -628,10 +543,10 @@ class Editor:
             if task_found:
                 break
         if idx > -1:
-            if self.settings['rec_prop'] in tasks[idx]:
+            if self.cfg['rec_prop'] in tasks[idx]:
                 tasks[idx] = self.update_due_date(tasks[idx])
             else:
-                tasks[idx] = self.settings['done_task_prefix'] + self.settings['space'] \
+                tasks[idx] = self.cfg['done_task_prefix'] + self.cfg['space'][1] \
                     + tasks[idx][2:]
         contents = ""
         for task_ in tasks:
@@ -654,11 +569,11 @@ class Editor:
         row = tab.getCursorPosition()[0]
         current_task = tasks[row]
         del tasks[row]
-        taux = self.settings['for_rescheduling_task_prefix']
+        taux = self.cfg['for_rescheduling_task_prefix']
         if mark_rescheduled_periodic_task:
-            taux = self.settings['rescheduled_periodic_task_prefix']
-        taux += self.settings['space'] + now.strftime("%Y-%m-%d") + \
-            self.settings['space'] \
+            taux = self.cfg['rescheduled_periodic_task_prefix']
+        taux += self.cfg['space'][1] + now.strftime("%Y-%m-%d") + \
+            self.cfg['space'][1] \
             + current_task
         tasks.append(taux)
         contents = ""
@@ -681,11 +596,11 @@ class Editor:
             return
         row = tab.getCursorPosition()[0]
         task = tab.text(row)
-        task = re.sub(r'\d{2}:\d{2}' + self.settings['space'], "", task)
+        task = re.sub(r'\d{2}:\d{2}' + self.cfg['space'][1], "", task)
         if len(task) < 1 or \
-           self.settings['rec_prop'] not in task or \
-           task[0] not in self.settings['active_task_prefixes'] or \
-           self.settings['daily_rec_prop_val'] in task:
+           self.cfg['rec_prop'] not in task or \
+           task[0] not in self.cfg['active_task_prefixes'].split('\n') or \
+           self.cfg['daily_rec_prop_val'] in task:
             return
         tab_index = self._view.tabs.indexOf(tab)
         row = tab.getCursorPosition()[0]
@@ -724,41 +639,41 @@ class Editor:
             task_finished = result[3]
             # If incoming task is a work task, add work tag to existing tags
             if result[4]:
-                result[2] += self.settings['space'] + self.settings['work_tag']
+                result[2] += self.cfg['space'][1] + self.cfg['work_tag']
             lines = current_tab.text().split(NEWLINE)
             extra_line_before = ''
             extra_line_after = ''
             # If active tab is a portfolio file
-            if current_tab.path in self.settings['portfolio_files']:
+            if current_tab.path in self.cfg['portfolio_files'].split('\n'):
                 # TODO Add a suitable message for why we're returning
                 if task_finished:
                     return
-                ordering_string = self.settings['heading_prefix'] + \
-                    self.settings['space']
-                ordering_string += self.settings['incoming_heading']
+                ordering_string = self.cfg['heading_prefix'] + \
+                    self.cfg['space'][1]
+                ordering_string += self.cfg['incoming_heading']
                 extra_line_before = NEWLINE
                 extra_line_after = ''
             # TODO Check if active tab is a daily file (currently assumed!)
             else:
                 lines = lines[:-1]
-                ordering_string = self.settings['heading_prefix'] + \
-                    self.settings['space']
-                ordering_string += self.settings['tasks_proposed_heading']
+                ordering_string = self.cfg['heading_prefix'] + \
+                    self.cfg['space'][1]
+                ordering_string += self.cfg['tasks_proposed_heading']
                 extra_line_before = NEWLINE
                 extra_line_after = ''
                 if task_finished:
                     extra_line_before = ''
                     extra_line_after = NEWLINE
-            task_status_mark = self.settings['open_task_prefix']
+            task_status_mark = self.cfg['open_task_prefix']
             if task_finished:
-                task_status_mark = self.settings['done_task_prefix']
+                task_status_mark = self.cfg['done_task_prefix']
             # Start constructing the task to add
-            taux = extra_line_before + task_status_mark + self.settings['space']
+            taux = extra_line_before + task_status_mark + self.cfg['space'][1]
             # Add task and duration
-            taux += result[0] + self.settings['space'] + \
-                self.settings['dur_prop'] + result[1]
+            taux += result[0] + self.cfg['space'][1] + \
+                self.cfg['dur_prop'] + result[1]
             # Add tags
-            taux += self.settings['space'] + result[2] + extra_line_after
+            taux += self.cfg['space'][1] + result[2] + extra_line_after
             # Generate new contents
             contents = ""
             for line in lines:
@@ -778,7 +693,7 @@ class Editor:
 
         current_tab = self._view.current_tab
         first_visible_line = current_tab.firstVisibleLine()
-        tag = self.settings['tag_prefix'] + current_tab.label.split('.')[0]
+        tag = self.cfg['tag_prefix'] + current_tab.label.split('.')[0]
         if FILE_CHANGED_ASTERISK in tag:
             tag = tag[:-2]
         lines = current_tab.text().split(NEWLINE)
@@ -788,9 +703,9 @@ class Editor:
         for i, _ in enumerate(lines):
             if i == row and \
                lines[i] and \
-               lines[i][0] in self.settings['active_task_prefixes'] and \
+               lines[i][0] in self.cfg['active_task_prefixes'].split('\n') and \
                tag not in lines[i]:
-                line = lines[i] + self.settings['space'] + tag
+                line = lines[i] + self.cfg['space'][1] + tag
                 contents += line + NEWLINE
                 col = len(line)
             else:
@@ -813,12 +728,12 @@ class Editor:
         col = cursor_position[1]
         new_lines = []
         for i, _ in enumerate(lines):
-            if i == row and lines[i] and self.settings['due_prop'] not in lines[i] and \
-               self.settings['rec_prop'] not in lines[i]:
-                if lines[i][0] == self.settings['top_task_prefix']:
-                    new_lines.append(self.settings['open_task_prefix'] + lines[i][1:])
+            if i == row and lines[i] and self.cfg['due_prop'] not in lines[i] and \
+               self.cfg['rec_prop'] not in lines[i]:
+                if lines[i][0] == self.cfg['top_task_prefix']:
+                    new_lines.append(self.cfg['open_task_prefix'] + lines[i][1:])
                 else:
-                    new_lines.append(self.settings['top_task_prefix'] + lines[i][1:])
+                    new_lines.append(self.cfg['top_task_prefix'] + lines[i][1:])
             else:
                 new_lines.append(lines[i])
         contents = ""
@@ -842,13 +757,13 @@ class Editor:
         for i, _ in enumerate(tasks_aux):
             if tasks_aux[i]:
                 if start > -1:
-                    if tasks_aux[i][0] == self.settings['top_task_prefix']:
+                    if tasks_aux[i][0] == self.cfg['top_task_prefix']:
                         ttl_tasks.append(tasks_aux[i])
-                elif tasks_aux[i][0] == self.settings['heading_prefix'] and \
-                   self.settings['ttl_heading'] not in tasks_aux[i]:
+                elif tasks_aux[i][0] == self.cfg['heading_prefix'] and \
+                   self.cfg['ttl_heading'] not in tasks_aux[i]:
                     start = i
-        tasks = [self.settings['heading_prefix'] + self.settings['space'] + \
-            self.settings['ttl_heading'], '']
+        tasks = [self.cfg['heading_prefix'] + self.cfg['space'][1] + \
+            self.cfg['ttl_heading'], '']
         for ttl_task in ttl_tasks:
             tasks.append(ttl_task)
         tasks.append('')
@@ -867,7 +782,7 @@ class Editor:
         for widget in self._view.widgets:
             current_tab_index = self._view.tabs.indexOf(widget)
             self._view.tabs.setCurrentIndex(current_tab_index)
-            if widget.path in self.settings['portfolio_files']:
+            if widget.path in self.cfg['portfolio_files'].split('\n'):
                 self.generate_ttl(widget)
 
     def extract_auxiliaries(self):
@@ -890,7 +805,7 @@ class Editor:
             target_day, target_month, target_year = result
             prepare_todays_tasks.prepare_todays_tasks(
                 target_day, target_month, target_year,
-                self.settings['atlas_settings_file'])
+                self.cfg['atlas_settings_file'])
         else:
             return
         file_name = str(target_year)
@@ -900,18 +815,18 @@ class Editor:
         if target_day < 10:
             file_name += "0"
         file_name += str(target_day)
-        file_name += self.settings['atlas_files_extension']
+        file_name += self.cfg['atlas_files_extension']
         # Close tab with the same name if it is alreday copen
         idx = -1
         for i in range(self._view.tab_count):
             if self._view.tabs.widget(i).path == \
-               self.settings['portfolio_base_dir'] + file_name:
+               self.cfg['portfolio_base_dir'] + file_name:
                 idx = i
         if idx > -1:
             self._view.tabs.removeTab(idx)
-        shutil.copyfile(self.settings['today_file'],
-                        self.settings['portfolio_base_dir'] + file_name)
-        self.open_file(self.settings['portfolio_base_dir'] + file_name)
+        shutil.copyfile(self.cfg['today_file'],
+                        self.cfg['portfolio_base_dir'] + file_name)
+        self.open_file(self.cfg['portfolio_base_dir'] + file_name)
 
     def analyse_tasks(self):
         """Function docstring."""
@@ -925,30 +840,30 @@ class Editor:
         work_earned_duration = 0
         for task in tasks_aux:
             if task:
-                task = re.sub(r'\d{2}:\d{2}' + self.settings['space'], "", task)
-                if task[0] in self.settings['active_task_prefixes']:
-                    if self.settings['dur_prop'] not in task:
+                task = re.sub(r'\d{2}:\d{2}' + self.cfg['space'][1], "", task)
+                if task[0] in self.cfg['active_task_prefixes'].split('\n'):
+                    if self.cfg['dur_prop'] not in task:
                         self._view.show_message("Please define dur:\n" + task)
                         return
                     else:
                         duration = self.get_task_duration(task)
                         total_duration += duration
-                        if self.settings['work_tag'] in task:
+                        if self.cfg['work_tag'] in task:
                             work_duration += duration
-                elif task[0] == self.settings['done_task_prefix']:
+                elif task[0] == self.cfg['done_task_prefix']:
                     duration = self.get_task_duration(task)
                     earned_duration += duration
-                    if self.settings['work_tag'] in task:
+                    if self.cfg['work_tag'] in task:
                         work_earned_duration += duration
         # Get rid of previous header information
         for task in tasks_aux:
-            if task and task[0] is not self.settings['info_task_prefix']:
+            if task and task[0] is not self.cfg['info_task_prefix']:
                 tasks.append(task)
             # else:
                 # tasks.append(task)
         statistic = (
-            f"{self.settings['info_task_prefix'] + self.settings['space']}"
-            f"{self.settings['earned_time_balance_form']}"
+            f"{self.cfg['info_task_prefix'] + self.cfg['space'][1]}"
+            f"{self.cfg['earned_time_balance_form']}"
             f"{self.mins_to_hh_mm(earned_duration)} "
             f"({self.mins_to_hh_mm(work_earned_duration)})"
         )
@@ -975,14 +890,14 @@ class Editor:
 #        found_first_task = False
         for task in tasks:
             if task:
-                task = re.sub(r'\d{2}:\d{2}' + self.settings['space'], "", task)
-                if task[0] in self.settings['active_task_prefixes']:
+                task = re.sub(r'\d{2}:\d{2}' + self.cfg['space'][1], "", task)
+                if task[0] in self.cfg['active_task_prefixes'].split('\n'):
                     sts = f"{start_time.hour:02}:{start_time.minute:02}"
                     idx = 2 - 2
                     # Has the task already been schedulled?
                     if task[4] == ':':
                         idx = 10 - 2
-                    new_task = sts + self.settings['space'] + task[idx:]
+                    new_task = sts + self.cfg['space'][1] + task[idx:]
                     scheduled_tasks.append(new_task)
                     start_time += datetime.timedelta(
                         minutes=self.get_task_duration(task))
@@ -1010,9 +925,9 @@ class Editor:
 #        ctab_idx = self._view.tabs.indexOf(ctab)
         tasks = ctab.text().split(NEWLINE)
         for task in tasks:
-            if self.settings['earned_time_balance_form'] in task:
-                extract = file_name + self.settings['space'] + task + NEWLINE
-        with open(self.settings['earned_times_file'], 'a') as file_:
+            if self.cfg['earned_time_balance_form'] in task:
+                extract = file_name + self.cfg['space'][1] + task + NEWLINE
+        with open(self.cfg['earned_times_file'], 'a') as file_:
             file_.write(extract)
 
     def log_progress(self):
@@ -1022,7 +937,7 @@ class Editor:
         if log_entry:
             log_tab_index = -1
             for i in range(self._view.tab_count):
-                if self._view.tabs.widget(i).path == self.settings['portfolio_log_file']:
+                if self._view.tabs.widget(i).path == self.cfg['portfolio_log_file']:
                     log_tab_index = i
             if log_tab_index > -1:
                 curr_stamp = datetime.datetime.now()
@@ -1032,8 +947,8 @@ class Editor:
                 log_tab = self._view.tabs.widget(log_tab_index)
                 lines = log_tab.text().split(NEWLINE)
                 for line in lines:
-                    if line[:4] == self.settings['log_entry_prefix']:
-                        parts = line.split(self.settings['date_separator'])
+                    if line[:4] == self.cfg['log_entry_prefix']:
+                        parts = line.split(self.cfg['date_separator'])
                         prev_stamp = datetime.datetime(
                             int(parts[1]),  # year
                             int(parts[2]),  # month
@@ -1043,19 +958,19 @@ class Editor:
                             int(parts[6]))  # seconds
                         break
                 diff = curr_stamp - prev_stamp
-                contents = self.settings['log_entry_prefix'] + "{}{}{:02d}{}{:02d}" \
+                contents = self.cfg['log_entry_prefix'] + "{}{}{:02d}{}{:02d}" \
                 .format(
                     curr_stamp.year,
-                    self.settings['date_separator'],
+                    self.cfg['date_separator'],
                     curr_stamp.month,
-                    self.settings['date_separator'],
+                    self.cfg['date_separator'],
                     curr_stamp.day)
                 contents += "{}{:02d}{}{:02d}{}{:02d}\n" \
-                    .format(self.settings['date_separator'],
+                    .format(self.cfg['date_separator'],
                             curr_stamp.hour,
-                            self.settings['date_separator'],
+                            self.cfg['date_separator'],
                             curr_stamp.minute,
-                            self.settings['date_separator'],
+                            self.cfg['date_separator'],
                             curr_stamp.second)
                 msh = {
                     'min': 0,
@@ -1071,8 +986,8 @@ class Editor:
                     msh['hrs'] = msh['min'] // 60
                     msh['min'] = msh['min'] % 60
                 contents += "{} days, {}{}{:02d}{}{:02d} from previous entry\n". \
-                    format(diff.days, msh['hrs'], self.settings['time_separator'],
-                           msh['min'], self.settings['time_separator'], msh['sec'])
+                    format(diff.days, msh['hrs'], self.cfg['time_separator'],
+                           msh['min'], self.cfg['time_separator'], msh['sec'])
                 contents += log_entry + NEWLINE + NEWLINE + log_tab.text()
                 log_tab.SendScintilla(
                     log_tab.SCI_SETTEXT, contents.encode(ENCODING))
@@ -1093,8 +1008,8 @@ class Editor:
         now = datetime.datetime.now()
         try:
             shutil.copytree(
-                self.settings['portfolio_base_dir'],
-                self.settings['backup_dir'] + now.strftime("%Y%m%d%H%M%S"))
+                self.cfg['portfolio_base_dir'],
+                self.cfg['backup_dir'] + now.strftime("%Y%m%d%H%M%S"))
         except shutil.Error as ex:
             logging.error("Directory not copied. Error: %s", ex)
         except OSError as ex:
@@ -1122,14 +1037,14 @@ class Editor:
         daily_tasks = []
         daily_tab_index = -1
         for widget in self._view.widgets:
-            if widget.path in self.settings['portfolio_files']:
+            if widget.path in self.cfg['portfolio_files'].split('\n'):
                 lines = widget.text().split(NEWLINE)
                 for line in lines:
-                    if self.settings['daily_rec_prop_val'] in line and \
-                       line[0] in self.settings['active_task_prefixes']:
+                    if self.cfg['daily_rec_prop_val'] in line and \
+                       line[0] in self.cfg['active_task_prefixes'].split('\n'):
                         daily_tasks.append(line)
         for i in range(self._view.tab_count):
-            if self._view.tabs.widget(i).path == self.settings['daily_file']:
+            if self._view.tabs.widget(i).path == self.cfg['daily_file']:
                 daily_tab_index = i
         contents = ""
         for i, _ in enumerate(daily_tasks):
@@ -1151,15 +1066,15 @@ class Editor:
         booked_tasks = []
         booked_tab_index = -1
         for widget in self._view.widgets:
-            if widget.path in self.settings['portfolio_files']:
+            if widget.path in self.cfg['portfolio_files'].split('\n'):
                 lines = widget.text().split(NEWLINE)
                 for line in lines:
-                    if self.settings['due_prop'] in line and \
-                       self.settings['rec_prop'] not in line and \
-                       line[0] in self.settings['active_task_prefixes']:
+                    if self.cfg['due_prop'] in line and \
+                       self.cfg['rec_prop'] not in line and \
+                       line[0] in self.cfg['active_task_prefixes'].split('\n'):
                         booked_tasks.append(line)
         for i in range(self._view.tab_count):
-            if self._view.tabs.widget(i).path == self.settings['booked_file']:
+            if self._view.tabs.widget(i).path == self.cfg['booked_file']:
                 booked_tab_index = i
         booked_tab = self._view.tabs.widget(booked_tab_index)
         contents = ""
@@ -1181,15 +1096,15 @@ class Editor:
         periodic_tasks = []
         periodic_tab_index = -1
         for widget in self._view.widgets:
-            if widget.path in self.settings['portfolio_files']:
+            if widget.path in self.cfg['portfolio_files'].split('\n'):
                 lines = widget.text().split(NEWLINE)
                 for line in lines:
-                    if self.settings['rec_prop'] in line and \
-                       self.settings['daily_rec_prop_val'] not in line and \
-                       line[0] in self.settings['active_task_prefixes']:
+                    if self.cfg['rec_prop'] in line and \
+                       self.cfg['daily_rec_prop_val'] not in line and \
+                       line[0] in self.cfg['active_task_prefixes'].split('\n'):
                         periodic_tasks.append(line)
         for i in range(self._view.tab_count):
-            if self._view.tabs.widget(i).path == self.settings['periodic_file']:
+            if self._view.tabs.widget(i).path == self.cfg['periodic_file']:
                 periodic_tab_index = i
         periodic_tab = self._view.tabs.widget(periodic_tab_index)
         contents = ""
@@ -1212,14 +1127,14 @@ class Editor:
         shlist_tasks = []
         shlist_tab_index = -1
         for widget in self._view.widgets:
-            if widget.path in self.settings['portfolio_files']:
+            if widget.path in self.cfg['portfolio_files'].split('\n'):
                 lines = widget.text().split(NEWLINE)
                 for line in lines:
-                    if self.settings['shlist_cat'] in line and \
-                       line[0] in self.settings['active_task_prefixes']:
+                    if self.cfg['shlist_cat'] in line and \
+                       line[0] in self.cfg['active_task_prefixes'].split('\n'):
                         shlist_tasks.append(line)
         for i in range(self._view.tab_count):
-            if self._view.tabs.widget(i).path == self.settings['shlist_file']:
+            if self._view.tabs.widget(i).path == self.cfg['shlist_file']:
                 shlist_tab_index = i
         shlist_tab = self._view.tabs.widget(shlist_tab_index)
         contents = ""
@@ -1246,9 +1161,9 @@ class Editor:
         :returns string: log entry after formatting
         """
 
-        if entry and len(entry) > self.settings['log_line_length']:
-            entry = entry[:self.settings['log_line_length']] + NEWLINE \
-                + entry[self.settings['log_line_length']:]
+        if entry and len(entry) > self.cfg.getint('log_line_length'):
+            entry = entry[:self.cfg.getint('log_line_length')] + NEWLINE \
+                + entry[self.cfg.getint('log_line_length'):]
         return entry
 
 
@@ -1268,10 +1183,10 @@ class Editor:
 
         """
 
-        words = task.split(self.settings['space'])
+        words = task.split(self.cfg['space'][1])
         for word in words:
-            if self.settings['dur_prop'] in word:
-                duration = int(word.split(self.settings['time_separator'])[1])
+            if self.cfg['dur_prop'] in word:
+                duration = int(word.split(self.cfg['time_separator'])[1])
         return int(duration)
 
     def get_task_text(self, task):
@@ -1284,13 +1199,13 @@ class Editor:
         :returns string: task text
         """
 
-        words = task.split(self.settings['space'])
+        words = task.split(self.settings['space'][1])
         task_text = ''
         for word in words:
             # Beware of special letters (and words beginning with them)
-            if (len(word) == 1 and word[0] in self.settings['active_task_prefixes']) \
+            if (len(word) == 1 and word[0] in self.cfg['active_task_prefixes'].split('\n')) \
                or self.props_in_word(word) \
-               or (word and word[0] in self.settings['reserved_word_prefixes']):
+               or (word and word[0] in self.cfg['reserved_word_prefixes'].split('\n')):
                 pass
             else:
                 task_text += word + ' '
@@ -1355,12 +1270,12 @@ class Editor:
         """
 
         calculate_from_due_date = False
-        words = periodic_task.split(self.settings['space'])
+        words = periodic_task.split(self.cfg['space'][1])
         for word in words:
-            if self.settings['due_prop'] in word:
+            if self.cfg['due_prop'] in word:
                 due = word[4:]
-            elif self.settings['rec_prop'] in word:
-                if self.settings['tag_prefix'] in word:
+            elif self.cfg['rec_prop'] in word:
+                if self.cfg['tag_prefix'] in word:
                     calculate_from_due_date = True
                 rec = ''
                 for char in word:
@@ -1368,19 +1283,19 @@ class Editor:
                         rec += char
                 rec_period = word[-1]
         rec = int(rec)
-        _year, _month, _day = due.split(self.settings['date_separator'])
+        _year, _month, _day = due.split(self.cfg['date_separator'])
         if calculate_from_due_date:
             new_due = datetime.date(int(_year), int(_month), int(_day))
         else:
             new_due = datetime.datetime.now()
-        if rec_period == self.settings['month_symbol']:
+        if rec_period == self.cfg['month_symbol']:
             new_due += relativedelta(months=rec)
-        elif rec_period == self.settings['year_symbol']:
+        elif rec_period == self.cfg['year_symbol']:
             new_due += relativedelta(years=rec)
         else:
             new_due += relativedelta(days=rec)
-        updated_periodic_task = re.sub(self.settings['due_prop'] + r'\d{4}-\d{2}-\d{2}',
-                                       self.settings['due_prop'] + new_due.strftime("%Y-%m-%d"),
+        updated_periodic_task = re.sub(self.cfg['due_prop'] + r'\d{4}-\d{2}-\d{2}',
+                                       self.cfg['due_prop'] + new_due.strftime("%Y-%m-%d"),
                                        periodic_task)
         return updated_periodic_task
 
@@ -1399,9 +1314,9 @@ class Editor:
     def props_in_word(self, word):
         """Check if a property definition is contained in `word`."""
 
-        if self.settings['due_prop'] in word \
-        or self.settings['dur_prop'] in word \
-        or self.settings['rec_prop'] in word:
+        if self.cfg['due_prop'] in word \
+        or self.cfg['dur_prop'] in word \
+        or self.cfg['rec_prop'] in word:
             return True
         return False
 
@@ -1414,5 +1329,5 @@ class Editor:
                 'h': self._view.height(),
             }
         }
-        with open(self.settings['atlas_session_file'], 'w') as out:
+        with open(self.cfg['atlas_session_file'], 'w') as out:
             json.dump(session, out, indent=2)

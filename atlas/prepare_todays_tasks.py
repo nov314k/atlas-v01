@@ -1,31 +1,32 @@
 """Docstring."""
 
+import configparser
 import sys
-import json
 import datetime
 # from calfs.get_coming_events import get_coming_events
-
 
 def prepare_todays_tasks(day, month, year, settings_file):
     """Docstring."""
 
+    config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
+    config.read(settings_file)                                          
+    cfg = config['USER']    
+
+    portfolio_base_dir = cfg['portfolio_base_dir']
+    portfolio_files = cfg['portfolio_files'].split('\n')
+    daily_file = cfg['daily_file']
+    booked_file = cfg['booked_file']
+    periodic_file = cfg['periodic_file']
+    today_file = cfg['today_file']
+    tokens_in_sorting_order = cfg['tokens_in_sorting_order'].split('\n')
+    heading_prefix = cfg['heading_prefix']
+    ttl_heading = cfg['ttl_heading']
+    cat_prefix = cfg['cat_prefix']
+    done_task_prefix = cfg['done_task_prefix']
+    # get_data_from_calendars = settings['get_data_from_calendars']
+    # coming_events_file = cfg['coming_events_file']
+
     new_tasks = []
-    with open(settings_file, "r") as settings:
-        settings = json.load(settings)
-        portfolio_base_dir = settings['portfolio_base_dir']
-        portfolio_files = \
-                [portfolio_base_dir + f for f in settings['portfolio_files']]
-        daily_file = portfolio_base_dir + settings['daily_file']
-        booked_file = portfolio_base_dir + settings['booked_file']
-        periodic_file = portfolio_base_dir + settings['periodic_file']
-        today_file = portfolio_base_dir + settings['today_file']
-        tokens_in_sorting_order = settings['tokens_in_sorting_order']
-        heading_prefix = settings['heading_prefix']
-        ttl_heading = settings['ttl_heading']
-        cat_prefix = settings['cat_prefix']
-        done_task_prefix = settings['done_task_prefix']
-        # get_data_from_calendars = settings['get_data_from_calendars']
-        coming_events_file = settings['coming_events_file']
 
     date = datetime.date(year, month, day)
     today_str = "{:%Y-%m-%d}".format(date)
