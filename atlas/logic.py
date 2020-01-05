@@ -127,10 +127,13 @@ class Editor:
     def restore_view(self):
         """Function docstring."""
 
-        with open(self.cfg['atlas_session_file']) as view_file:
-            view = json.load(view_file)
-        old_window = view.get('window', {})
-        self._view.size_window(**old_window)
+        #with open(self.cfg['atlas_session_file']) as view_file:
+        #    view = json.load(view_file)
+        #view = "{'x': 0, 'y': 27, 'w': 1366, 'h': 680}"
+        #old_window = view.get(self.cfg['window'], {})
+        #old_window=self.cfg['window']
+        #self._view.size_window(**old_window)
+        pass
 
     def setup_menu(self):
         """Set up the drop-down menu.
@@ -369,7 +372,7 @@ class Editor:
             user_chose_yes_or_no = self.close_file()
             if not user_chose_yes_or_no:
                 return
-        self.save_session_settings()      
+        # self.save_session_settings()      
         sys.exit(0)
 
     def goto_tab_left(self):
@@ -1166,7 +1169,6 @@ class Editor:
                 + entry[self.cfg.getint('log_line_length'):]
         return entry
 
-
     def get_task_duration(self, task):
         """Get task duration from task definition.
 
@@ -1203,14 +1205,13 @@ class Editor:
         task_text = ''
         for word in words:
             # Beware of special letters (and words beginning with them)
-            if (len(word) == 1 and word[0] in self.cfg['active_task_prefixes'].split('\n')) \
-               or self.props_in_word(word) \
-               or (word and word[0] in self.cfg['reserved_word_prefixes'].split('\n')):
+            if (self.word_has_active_task_prefix(word)
+                    or self.props_in_word(word)
+                    or self.word_has_reserved_word_prefix(word)):
                 pass
             else:
-                task_text += word + ' '
-        return task_text[:-1]
-
+                task_text += word + self.cfg['space']
+        return task_text.rstrip(self.cfg['space'])
 
     def running_from_daily_tasks_file(self, tab):
         """Check if the command is issued while a daily tasks tab is active.
@@ -1294,9 +1295,11 @@ class Editor:
             new_due += relativedelta(years=rec)
         else:
             new_due += relativedelta(days=rec)
-        updated_periodic_task = re.sub(self.cfg['due_prop'] + r'\d{4}-\d{2}-\d{2}',
-                                       self.cfg['due_prop'] + new_due.strftime("%Y-%m-%d"),
-                                       periodic_task)
+        updated_periodic_task = (re.sub(self.cfg['due_prop']
+                                 + r'\d{4}-\d{2}-\d{2}',
+                                 self.cfg['due_prop']
+                                 + new_due.strftime("%Y-%m-%d"),
+                                 periodic_task))
         return updated_periodic_task
 
     def show_status_message(self, message, duration=5):
@@ -1314,9 +1317,9 @@ class Editor:
     def props_in_word(self, word):
         """Check if a property definition is contained in `word`."""
 
-        if self.cfg['due_prop'] in word \
-        or self.cfg['dur_prop'] in word \
-        or self.cfg['rec_prop'] in word:
+        if (self.cfg['due_prop'] in word
+                or self.cfg['dur_prop'] in word
+                or self.cfg['rec_prop'] in word):
             return True
         return False
 
@@ -1331,3 +1334,15 @@ class Editor:
         }
         with open(self.cfg['atlas_session_file'], 'w') as out:
             json.dump(session, out, indent=2)
+
+    def word_has_active_task_prefix(word):
+        if (len(word) == 1
+                and word[0] in self.cfg['active_task_prefixes'].split('\n')):
+            return True
+        return False
+ 
+    def word_has_reserved_word_prefix(word):
+        if (word
+                and word[0] in self.cfg['reserved_word_prefixes'].split('\n')):
+            return True
+        return False
