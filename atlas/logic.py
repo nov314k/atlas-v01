@@ -20,14 +20,12 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-  
+
 """
 
-import codecs
 import configparser
 import datetime
 import json
-import locale
 import logging
 import os
 import re
@@ -42,6 +40,8 @@ LINE_ENDING = '\n'
 NEWLINE = LINE_ENDING
 WORKING_MODE = 'pmdtxt'
 FILE_CHANGED_ASTERISK = '*'
+ENCODING = 'UTF-8'
+
 
 def sort_tasks(tasks, tags_in_sorting_order):
     """Function docstring."""
@@ -110,9 +110,13 @@ class Editor:
 
         """
 
-        self.config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
+        self.config = configparser.ConfigParser(
+                interpolation=configparser.ExtendedInterpolation())
         self.config.read(settings_file)
         self.cfg = self.config['USER']
+        self.active_task_prefixes = (
+                self.cfg['active_task_prefixes'].split('\n'))
+        self.portfolio_files = self.cfg['portfolio_files'].split('\n')
 
     def setup(self):
         """Function docstring."""
@@ -127,12 +131,12 @@ class Editor:
     def restore_view(self):
         """Function docstring."""
 
-        #with open(self.cfg['atlas_session_file']) as view_file:
+        # with open(self.cfg['atlas_session_file']) as view_file:
         #    view = json.load(view_file)
-        #view = "{'x': 0, 'y': 27, 'w': 1366, 'h': 680}"
-        #old_window = view.get(self.cfg['window'], {})
-        #old_window=self.cfg['window']
-        #self._view.size_window(**old_window)
+        # view = "{'x': 0, 'y': 27, 'w': 1366, 'h': 680}"
+        # old_window = view.get(self.cfg['window'], {})
+        # old_window=self.cfg['window']
+        # self._view.size_window(**old_window)
         pass
 
     def setup_menu(self):
@@ -158,8 +162,10 @@ class Editor:
         menu_actions['move_daily_tasks_file'] = self.move_daily_tasks_file
         # Task
         menu_actions['mark_task_done'] = self.mark_task_done
-        menu_actions['mark_task_for_rescheduling'] = self.mark_task_for_rescheduling
-        menu_actions['reschedule_periodic_task'] = self.reschedule_periodic_task
+        menu_actions['mark_task_for_rescheduling'] = \
+            self.mark_task_for_rescheduling
+        menu_actions['reschedule_periodic_task'] = \
+            self.reschedule_periodic_task
         menu_actions['add_adhoc_task'] = self.add_adhoc_task
         menu_actions['tag_current_line'] = self.tag_current_line
         menu_actions['toggle_tt'] = self.toggle_tt
@@ -182,28 +188,6 @@ class Editor:
         menu_actions['extract_periodic'] = self.extract_periodic
         menu_actions['extract_shlist'] = self.extract_shlist
         self._view.setup_menu(menu_actions)
-
-#   def setup_button_bar(self, mode):
-#       """Set up button bar below drop-down menues.
-#
-#        Only key commands (functions) are repeated in the button bar.
-#
-#        """
-#
-#        self.mode = mode
-#        self._view.change_mode()
-#        # self._view.change_mode(WORKING_MODE)
-#        button_bar = self._view.button_bar
-#         button_bar.connect('toggle_tt', self.toggle_tt, "")
-#         button_bar.connect('generate_ttl', self.generate_ttl, "")
-#         button_bar.connect('prepare_day_plan', self.prepare_day_plan, "")
-#         button_bar.connect('analyse_tasks', self.analyse_tasks, "")
-#         button_bar.connect('mark_task_done', self.mark_task_done, "")
-#         button_bar.connect('mark_task_for_rescheduling',
-#                            self.mark_task_for_rescheduling, "")
-#         button_bar.connect('reschedule_periodic_task',
-#                            self.reschedule_periodic_task, "")
-#         button_bar.connect('extract_earned_time', self.extract_earned_time, "")
 
     def open_portfolio(self):
         """Function docstring."""
@@ -232,21 +216,22 @@ class Editor:
 
     def open_file(self, path=None):
         """Open a file from disk in a new tab.
-        
+
         If `path` is not specified, it displays a dialog for the user to choose
         the path to open. Does not open an already opened file.
-        
+
         Parameters
         ----------
         path : str
             Path to save tab contents to.
-        
+
         """
 
         # Get the path from the user if it's not defined
         if not path:
-            path = self._view.get_open_file_path(self.cfg['portfolio_base_dir'],
-                                            self.cfg['atlas_files_extension'])
+            path = self._view.get_open_file_path(
+                    self.cfg['portfolio_base_dir'],
+                    self.cfg['atlas_files_extension'])
         # Was the dialog canceled?
         if not path:
             return
@@ -266,14 +251,14 @@ class Editor:
 
     def save_file(self, path=None, tab=None):
         """Save file contained in a tab to disk.
-        
+
         If `tab` is not specified, it assumes that we want to save the file
         contained in the currently active tab. If it is a newly added tab
         not save before (and hence a file does not exist on disk), a dialog is
         displayed to choose the save path. Even though the path of a tab is
         contained in the tab, due to different usage scenarios for this
         function, it is best to keep these two parameters separate.
-        
+
         Parameters
         ----------
         path : str
@@ -282,13 +267,14 @@ class Editor:
             Tab containing the contents to save to `path`.
 
         """
-        
+
         if not tab:
             tab = self._view.current_tab
         if not path:
             # If it is a newly added tab, not saved before
             if tab.path is None:
-                tab.path = self._view.get_save_file_path(self.cfg['portfolio_base_dir'])
+                tab.path = self._view.get_save_file_path(
+                        self.cfg['portfolio_base_dir'])
             # Was the dialog canceled?
             if not tab.path:
                 return
@@ -296,14 +282,14 @@ class Editor:
         with open(path, 'w', encoding=self.encoding) as faux:
             faux.writelines(tab.text())
         tab.setModified(False)
-    
+
     def save_file_as(self):
         """Save file in active tab to a different path.
-        
+
         After getting the new path, it checks if the new path is already open.
         If it is not open, calls `self.save_file()` with the new file name
         provided.
-        
+
         """
 
         path = self._view.get_save_file_path(self.cfg['portfolio_base_dir'])
@@ -312,16 +298,16 @@ class Editor:
             return
         for widget in self._view.widgets:
             if widget.path == path:
-            # if os.path.samefile(path, widget.path):
+                # if os.path.samefile(path, widget.path):
                 msg = "'{}' is open. Close if before overwriting."
                 self._view.show_message(msg.format(os.path.basename(path)))
                 self._view.focus_tab(widget)
                 return
         self.save_file(path)
-    
+
     def close_file(self):
         """Close the current file (remove the current tab).
-        
+
         Returning `False` indicates that the user, when answering to the
         question, chose 'Cancel'. Returning `True` indicates that the user
         answered with either 'Yes' or 'No'. This is primarily used by `quit()`
@@ -329,7 +315,7 @@ class Editor:
         'Cancel'. If a user choses 'Cancel', they decide that they want to deal
         with the changes in the file in the normal program operation mode
         ('manually').
-        
+
         """
 
         current_tab = self._view.current_tab
@@ -360,19 +346,19 @@ class Editor:
 
     def quit(self, fixme):
         """Quit Atlas.
-        
+
         Confirm if and how the user wants to save changes. Saves session
         settings before exiting.
-        
+
         """
-        
+
         for tab in self._view.widgets:
             current_tab_index = self._view.tabs.indexOf(tab)
             self._view.tabs.setCurrentIndex(current_tab_index)
             user_chose_yes_or_no = self.close_file()
             if not user_chose_yes_or_no:
                 return
-        # self.save_session_settings()      
+        # self.save_session_settings()
         sys.exit(0)
 
     def goto_tab_left(self):
@@ -380,7 +366,7 @@ class Editor:
 
         tab = self._view.current_tab
         index = self._view.tabs.indexOf(tab)
-        if index - 1 < 0:
+        if index-1 < 0:
             next_tab = self._view.tab_count - 1
         else:
             next_tab = index - 1
@@ -391,7 +377,7 @@ class Editor:
 
         tab = self._view.current_tab
         index = self._view.tabs.indexOf(tab)
-        if index + 1 > self._view.tab_count - 1:
+        if index+1 > self._view.tab_count-1:
             next_tab = 0
         else:
             next_tab = index + 1
@@ -454,19 +440,19 @@ class Editor:
 
     def mark_task_done(self):
         """Mark current task as done.
-        
+
         Marks the current task as done first in the daily tasks file, and then
         also at task definition. This method can only be run from a daily tasks
-        file, and only on tasks that have an `open_task_prefix`. It calls 
+        file, and only on tasks that have an `open_task_prefix`. It calls
         `mark_ordinary_task_done()` to do the actual work. Special care is
         taken to preserve the view. After marking a task as done, it calls
         `analyse_tasks()` and `schedule_tasks()` to refresh the information.
-        
+
         Notes
         -----
-        In current code, care has been taken to avoid the bug where tab title is
-        incorrectly changed when switching between tabs. Be aware of this when
-        changing the code.
+        In current code, care has been taken to avoid the bug where tab title
+        is incorrectly changed when switching between tabs. Be aware of this
+        when changing the code.
 
         """
 
@@ -477,10 +463,12 @@ class Editor:
         first_visible_line = tab.firstVisibleLine()
         row = tab.getCursorPosition()[0]
         current_task = tab.text(row)
-        current_task = re.sub(r'\d{2}:\d{2}' + self.cfg['space'][1], "", current_task)
+        current_task = re.sub(r'\d{2}:\d{2}' + self.cfg['space'][1], "",
+                              current_task)
         # If it's a blank line
-        if current_task \
-           and current_task[0] not in self.cfg['active_task_prefixes'].split('\n'):
+        if (current_task
+                and current_task[0]
+                not in self.cfg['active_task_prefixes'].split('\n')):
             return
         contents = self.mark_ordinary_task_done(tab)
         tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(self.encoding))
@@ -516,29 +504,29 @@ class Editor:
     def mark_done_at_origin(self, task):
         """Function docstring."""
 
-        if len(task) < 1 \
-           or task[0] not in self.cfg['active_task_prefixes'].split('\n') \
-           or self.cfg['daily_rec_prop_val'] in task:
+        if (len(task) < 1
+                or task[0] not in self.cfg['active_task_prefixes'].split('\n')
+                or self.cfg['daily_rec_prop_val'] in task):
             return
         idx = -1
         tasks = []
         tab_idx = -1
         task_found = False
         for i in range(self._view.tab_count):
-            if self._view.tabs.widget(i).path in self.cfg['portfolio_files'].split('\n'):
+            if self._view.tabs.widget(i).path in self.portfolio_files:
                 tasks = self._view.tabs.widget(i).text().split(NEWLINE)
                 in_ttl = False
                 for j, _ in enumerate(tasks):
                     if tasks[j]:
-                        if tasks[j][0] == self.cfg['heading_prefix'] \
-                           and self.cfg['ttl_heading'] in tasks[j]:
+                        if (tasks[j][0] == self.cfg['heading_prefix']
+                                and self.cfg['ttl_heading'] in tasks[j]):
                             in_ttl = True
                         elif tasks[j][0] == self.cfg['heading_prefix']:
                             in_ttl = False
-                        if tasks[j][0] in self.cfg['active_task_prefixes'].split('\n') \
-                           and self.get_task_text(tasks[j]) in task \
-                           and not task_found \
-                           and not in_ttl:
+                        if (tasks[j][0] in self.active_task_prefixes
+                                and self.get_task_text(tasks[j]) in task
+                                and not task_found
+                                and not in_ttl):
                             idx = j
                             tab_idx = i
                             task_found = True
@@ -549,8 +537,8 @@ class Editor:
             if self.cfg['rec_prop'] in tasks[idx]:
                 tasks[idx] = self.update_due_date(tasks[idx])
             else:
-                tasks[idx] = self.cfg['done_task_prefix'] + self.cfg['space'][1] \
-                    + tasks[idx][2:]
+                tasks[idx] = (self.cfg['done_task_prefix']
+                              + self.cfg['space'][1] + tasks[idx][2:])
         contents = ""
         for task_ in tasks:
             contents += task_ + NEWLINE
@@ -600,10 +588,11 @@ class Editor:
         row = tab.getCursorPosition()[0]
         task = tab.text(row)
         task = re.sub(r'\d{2}:\d{2}' + self.cfg['space'][1], "", task)
-        if len(task) < 1 or \
-           self.cfg['rec_prop'] not in task or \
-           task[0] not in self.cfg['active_task_prefixes'].split('\n') or \
-           self.cfg['daily_rec_prop_val'] in task:
+        if (len(task) < 1
+                or self.cfg['rec_prop']
+                not in task
+                or task[0] not in self.cfg['active_task_prefixes'].split('\n')
+                or self.cfg['daily_rec_prop_val'] in task):
             return
         tab_index = self._view.tabs.indexOf(tab)
         row = tab.getCursorPosition()[0]
@@ -612,28 +601,28 @@ class Editor:
         self.mark_task_for_rescheduling(True)
         # TODO Consider adding an option
         # to determine whether the user wants this done
-        #self.analyse_tasks()
-        #self.schedule_tasks()
+        # self.analyse_tasks()
+        # self.schedule_tasks()
         return
 
     def add_adhoc_task(self):
         """Add an ad hoc (incoming) task to an LA file or a DT file.
-        
+
         Add an ad hoc (incoming) task. There are two main situations: adding an
         ad hoc task to a life area (LA) file, and adding an add hoc task to a
         daily tasks (DT) file. Different values for `extra_line_before` and
         `extra_line_after` are given in those two cases. Then there is also the
-        case of adding an already finished task. A finished task is added at the
-        end of a daily tasks file (with `extra_line_before` and 
+        case of adding an already finished task. A finished task is added at
+        the end of a daily tasks file (with `extra_line_before` and
         `extra_line_after` suitably adjusted), while it is not added to a
         portfolio file.
-        
+
         Notes
         -----
         Consider splitting this method into two: one for adding the ad hoc task
         to a life area file, and one for adding an ad hoc task to a daily tasks
         file, since the logic below is getting a bit cumbersome.
-        
+
         """
 
         result = self._view.show_add_adhoc_task()
@@ -704,10 +693,10 @@ class Editor:
         col = 0
         contents = ""
         for i, _ in enumerate(lines):
-            if i == row and \
-               lines[i] and \
-               lines[i][0] in self.cfg['active_task_prefixes'].split('\n') and \
-               tag not in lines[i]:
+            if (i == row
+                    and lines[i]
+                    and lines[i][0] in self.active_task_prefixes
+                    and tag not in lines[i]):
                 line = lines[i] + self.cfg['space'][1] + tag
                 contents += line + NEWLINE
                 col = len(line)
@@ -731,12 +720,16 @@ class Editor:
         col = cursor_position[1]
         new_lines = []
         for i, _ in enumerate(lines):
-            if i == row and lines[i] and self.cfg['due_prop'] not in lines[i] and \
-               self.cfg['rec_prop'] not in lines[i]:
+            if (i == row
+                    and lines[i]
+                    and self.cfg['due_prop'] not in lines[i]
+                    and self.cfg['rec_prop'] not in lines[i]):
                 if lines[i][0] == self.cfg['top_task_prefix']:
-                    new_lines.append(self.cfg['open_task_prefix'] + lines[i][1:])
+                    new_lines.append(self.cfg['open_task_prefix']
+                                     + lines[i][1:])
                 else:
-                    new_lines.append(self.cfg['top_task_prefix'] + lines[i][1:])
+                    new_lines.append(self.cfg['top_task_prefix']
+                                     + lines[i][1:])
             else:
                 new_lines.append(lines[i])
         contents = ""
@@ -762,11 +755,11 @@ class Editor:
                 if start > -1:
                     if tasks_aux[i][0] == self.cfg['top_task_prefix']:
                         ttl_tasks.append(tasks_aux[i])
-                elif tasks_aux[i][0] == self.cfg['heading_prefix'] and \
-                   self.cfg['ttl_heading'] not in tasks_aux[i]:
+                elif (tasks_aux[i][0] == self.cfg['heading_prefix']
+                        and self.cfg['ttl_heading'] not in tasks_aux[i]):
                     start = i
-        tasks = [self.cfg['heading_prefix'] + self.cfg['space'][1] + \
-            self.cfg['ttl_heading'], '']
+        tasks = [self.cfg['heading_prefix'] + self.cfg['space'][1]
+                 + self.cfg['ttl_heading'], '']
         for ttl_task in ttl_tasks:
             tasks.append(ttl_task)
         tasks.append('')
@@ -822,8 +815,8 @@ class Editor:
         # Close tab with the same name if it is alreday copen
         idx = -1
         for i in range(self._view.tab_count):
-            if self._view.tabs.widget(i).path == \
-               self.cfg['portfolio_base_dir'] + file_name:
+            if (self._view.tabs.widget(i).path
+                    == self.cfg['portfolio_base_dir'] + file_name):
                 idx = i
         if idx > -1:
             self._view.tabs.removeTab(idx)
@@ -940,11 +933,13 @@ class Editor:
         if log_entry:
             log_tab_index = -1
             for i in range(self._view.tab_count):
-                if self._view.tabs.widget(i).path == self.cfg['portfolio_log_file']:
+                if (self._view.tabs.widget(i).path
+                        == self.cfg['portfolio_log_file']):
                     log_tab_index = i
             if log_tab_index > -1:
                 curr_stamp = datetime.datetime.now()
-                current_tab_index = self._view.tabs.indexOf(self._view.current_tab)
+                current_tab_index = self._view.tabs.indexOf(
+                        self._view.current_tab)
                 # ~ current_tab_path = self._view.current_tab.path
                 self._view.tabs.setCurrentIndex(log_tab_index)
                 log_tab = self._view.tabs.widget(log_tab_index)
@@ -961,20 +956,15 @@ class Editor:
                             int(parts[6]))  # seconds
                         break
                 diff = curr_stamp - prev_stamp
-                contents = self.cfg['log_entry_prefix'] + "{}{}{:02d}{}{:02d}" \
-                .format(
-                    curr_stamp.year,
-                    self.cfg['date_separator'],
-                    curr_stamp.month,
-                    self.cfg['date_separator'],
-                    curr_stamp.day)
+                contents = (self.cfg['log_entry_prefix']
+                            + "{}{}{:02d}{}{:02d}".format(
+                                curr_stamp.year, self.cfg['date_separator'],
+                                curr_stamp.month, self.cfg['date_separator'],
+                                curr_stamp.day))
                 contents += "{}{:02d}{}{:02d}{}{:02d}\n" \
-                    .format(self.cfg['date_separator'],
-                            curr_stamp.hour,
-                            self.cfg['date_separator'],
-                            curr_stamp.minute,
-                            self.cfg['date_separator'],
-                            curr_stamp.second)
+                    .format(self.cfg['date_separator'], curr_stamp.hour,
+                            self.cfg['date_separator'], curr_stamp.minute,
+                            self.cfg['date_separator'], curr_stamp.second)
                 msh = {
                     'min': 0,
                     'sec': 0,
@@ -988,9 +978,11 @@ class Editor:
                 if msh['min'] > 59:
                     msh['hrs'] = msh['min'] // 60
                     msh['min'] = msh['min'] % 60
-                contents += "{} days, {}{}{:02d}{}{:02d} from previous entry\n". \
+                text_aux = "from previous entry"
+                contents += "{} days, {}{}{:02d}{}{:02d} {}\n". \
                     format(diff.days, msh['hrs'], self.cfg['time_separator'],
-                           msh['min'], self.cfg['time_separator'], msh['sec'])
+                           msh['min'], self.cfg['time_separator'], msh['sec'],
+                           text_aux)
                 contents += log_entry + NEWLINE + NEWLINE + log_tab.text()
                 log_tab.SendScintilla(
                     log_tab.SCI_SETTEXT, contents.encode(ENCODING))
@@ -1026,7 +1018,7 @@ class Editor:
         tasks = tab.text().split(NEWLINE)
         contents = ""
         for task in sorted(tasks):
-            if len(task) is not 0:
+            if len(task) > 0:
                 contents += task + NEWLINE
         tab.SendScintilla(tab.SCI_SETTEXT, contents.encode(ENCODING))
         tab.setFirstVisibleLine(first_visible_line)
@@ -1043,8 +1035,8 @@ class Editor:
             if widget.path in self.cfg['portfolio_files'].split('\n'):
                 lines = widget.text().split(NEWLINE)
                 for line in lines:
-                    if self.cfg['daily_rec_prop_val'] in line and \
-                       line[0] in self.cfg['active_task_prefixes'].split('\n'):
+                    if (self.cfg['daily_rec_prop_val'] in line
+                            and line[0] in self.active_task_prefixes):
                         daily_tasks.append(line)
         for i in range(self._view.tab_count):
             if self._view.tabs.widget(i).path == self.cfg['daily_file']:
@@ -1060,7 +1052,6 @@ class Editor:
         self.save_file(daily_tab.path, daily_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
 
-
     def extract_booked(self):
         """Extract to file tasks with the due-date property defined."""
 
@@ -1072,9 +1063,9 @@ class Editor:
             if widget.path in self.cfg['portfolio_files'].split('\n'):
                 lines = widget.text().split(NEWLINE)
                 for line in lines:
-                    if self.cfg['due_prop'] in line and \
-                       self.cfg['rec_prop'] not in line and \
-                       line[0] in self.cfg['active_task_prefixes'].split('\n'):
+                    if (self.cfg['due_prop'] in line
+                            and self.cfg['rec_prop'] not in line
+                            and line[0] in self.active_task_prefixes):
                         booked_tasks.append(line)
         for i in range(self._view.tab_count):
             if self._view.tabs.widget(i).path == self.cfg['booked_file']:
@@ -1102,9 +1093,9 @@ class Editor:
             if widget.path in self.cfg['portfolio_files'].split('\n'):
                 lines = widget.text().split(NEWLINE)
                 for line in lines:
-                    if self.cfg['rec_prop'] in line and \
-                       self.cfg['daily_rec_prop_val'] not in line and \
-                       line[0] in self.cfg['active_task_prefixes'].split('\n'):
+                    if (self.cfg['rec_prop'] in line
+                            and self.cfg['daily_rec_prop_val'] not in line
+                            and line[0] in self.active_task_prefixes):
                         periodic_tasks.append(line)
         for i in range(self._view.tab_count):
             if self._view.tabs.widget(i).path == self.cfg['periodic_file']:
@@ -1121,7 +1112,6 @@ class Editor:
         self.save_file(periodic_tab.path, periodic_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
 
-
     def extract_shlist(self):
         """Extract to file tasks with the shopping list category defined."""
 
@@ -1133,8 +1123,8 @@ class Editor:
             if widget.path in self.cfg['portfolio_files'].split('\n'):
                 lines = widget.text().split(NEWLINE)
                 for line in lines:
-                    if self.cfg['shlist_cat'] in line and \
-                       line[0] in self.cfg['active_task_prefixes'].split('\n'):
+                    if (self.cfg['shlist_cat'] in line
+                            and line[0] in self.active_task_prefixes):
                         shlist_tasks.append(line)
         for i in range(self._view.tab_count):
             if self._view.tabs.widget(i).path == self.cfg['shlist_file']:
@@ -1150,9 +1140,9 @@ class Editor:
                                  contents.encode(self.encoding))
         self.save_file(shlist_tab.path, shlist_tab)
         self._view.tabs.setCurrentIndex(current_tab_index)
-        
+
     # Utilities
-    
+
     def format_log_entry(self, entry):
         """Format log entry so that each line does not exceed certain length.
 
@@ -1223,8 +1213,8 @@ class Editor:
 
         file_name = os.path.basename(tab.path).split('.')[0]
         if not re.match(r'\d{8}', file_name):
-            message = "This command can only be run" \
-                      "from a daily tasks file."
+            message = ("This command can only be run"
+                       "from a daily tasks file.")
             self._view.show_message(message)
             return False
         return True
@@ -1335,13 +1325,13 @@ class Editor:
         with open(self.cfg['atlas_session_file'], 'w') as out:
             json.dump(session, out, indent=2)
 
-    def word_has_active_task_prefix(word):
+    def word_has_active_task_prefix(self, word):
         if (len(word) == 1
                 and word[0] in self.cfg['active_task_prefixes'].split('\n')):
             return True
         return False
- 
-    def word_has_reserved_word_prefix(word):
+
+    def word_has_reserved_word_prefix(self, word):
         if (word
                 and word[0] in self.cfg['reserved_word_prefixes'].split('\n')):
             return True
