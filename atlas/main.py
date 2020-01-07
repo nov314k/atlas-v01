@@ -7,9 +7,11 @@ from PyQt5.QtWidgets import QApplication
 from interface.main import Window
 from logic import Editor
 
+
 def run():
-    logging.basicConfig(filename='atlas.log', level=logging.DEBUG,
-                        format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
+    logging.basicConfig(
+            filename='atlas.log', level=logging.DEBUG,
+            format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
     logging.info("Starting Atlas")
     portfolio_file = 'example-portfolio/example.json'
     if len(sys.argv) > 1:
@@ -32,6 +34,7 @@ def run():
     editor_window.setup()
     editor.setup()
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     run()

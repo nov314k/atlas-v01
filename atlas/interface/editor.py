@@ -1,14 +1,14 @@
 """Docstring."""
 
-#import keyword
+# import keyword
 import os
 import os.path
 import re
-#from collections import defaultdict
-#from PyQt5.Qsci import (QsciScintilla, QsciLexerPython, QsciLexerHTML, QsciAPIs,
-#                        QsciLexerCSS, QsciLexerCustom)
+# from collections import defaultdict
+# from PyQt5.Qsci import (QsciScintilla, QsciLexerPython, QsciLexerHTML,
+#                         QsciAPIs, QsciLexerCSS, QsciLexerCustom)
 from PyQt5.Qsci import QsciScintilla, QsciLexerCustom
-#from PyQt5.QtCore import Qt, pyqtSignal
+# from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtWidgets import QApplication
@@ -22,10 +22,12 @@ def language():
 
     return 'pmd.txt'
 
+
 def description():
     """Docstring."""
 
     return 'pmd.txt'
+
 
 class PmdTxtLexer(QsciLexerCustom):
     """Docstring."""
@@ -76,8 +78,8 @@ class PmdTxtLexer(QsciLexerCustom):
             elif token[0] in ['dow', 'due', 'rec']:
                 self.setStyling(token[1], 4)
             elif token[0] in ['booked', 'daily', 'infra', 'incoming', 'work',
-                              'periodic', 'shlist', 'stroth', 'study', 'weekly',
-                              'calMaja', 'calCrkveni', 'calPhases',
+                              'periodic', 'shlist', 'stroth', 'study',
+                              'weekly', 'calMaja', 'calCrkveni', 'calPhases',
                               'calAustralia', '+']:
                 self.setStyling(token[1], 5)
             elif token[0] in ['dur']:

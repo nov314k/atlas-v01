@@ -1,20 +1,16 @@
 """Docstring."""
 
-import os.path
-from PyQt5.QtCore import QSize, Qt, pyqtSignal, QTimer
-from PyQt5.QtWidgets import (QToolBar, QAction, QDesktopWidget, QWidget,
-                             QVBoxLayout, QTabWidget, QFileDialog, QMessageBox,
-                             QMainWindow, QStatusBar, QShortcut, QApplication,
-                             QMenuBar)
+from PyQt5.QtCore import Qt, pyqtSignal, QTimer
+from PyQt5.QtWidgets import (QAction, QDesktopWidget, QWidget, QVBoxLayout,
+                             QTabWidget, QFileDialog, QMessageBox, QMainWindow,
+                             QStatusBar, QShortcut, QMenuBar)
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtGui import QIcon
-from pkg_resources import resource_filename, resource_string
+# from pkg_resources import resource_string
+from pkg_resources import resource_filename
 from interface.dialogs import (PrepareDayDialog, LogProgressDialog,
                                LogExpenseDialog, AddAdhocTaskDialog)
-from interface.font import DEFAULT_FONT_SIZE
 from interface.editor import EditorPane
-
-
 
 
 def screen_size():
@@ -22,6 +18,7 @@ def screen_size():
 
     screen = QDesktopWidget().screenGeometry()
     return screen.width(), screen.height()
+
 
 class MenuBar(QMenuBar):
     """Docstring."""
@@ -42,10 +39,10 @@ class MenuBar(QMenuBar):
 
 # class ButtonBar(QToolBar):
 #     """Docstring."""
-# 
+#
 #    def __init__(self, parent):
 #        """Docstring."""
-# 
+#
 #        super().__init__(parent)
 #        self.setMovable(False)
 #        self.setIconSize(QSize(64, 64))
@@ -53,16 +50,16 @@ class MenuBar(QMenuBar):
 #        self.setContextMenuPolicy(Qt.PreventContextMenu)
 #        self.setObjectName('StandardToolBar')
 #        self.reset()
-# 
+#
 #    def reset(self):
 #        """Docstring."""
-# 
+#
 #        self.slots = {}
 #        self.clear()
-# 
+#
 #    def change_mode(self):
 #        """Docstring."""
-# 
+#
 #        self.reset()
 #        self.addAction(name='toggle_tt', display_name="Toggle\nTT",
 #                       tool_text="")
@@ -78,13 +75,13 @@ class MenuBar(QMenuBar):
 #                       display_name="Mark\ntask\nfor\nrescheduling",
 #                       tool_text="")
 #        self.addAction(name='reschedule_periodic_task',
-#                       display_name="Reschedule\nperiodic\ntask", tool_text="")
+#                      display_name="Reschedule\nperiodic\ntask", tool_text="")
 #        self.addAction(name='extract_earned_time',
 #                       display_name="Extract\nearned\ntime", tool_text="")
-# 
+#
 #    def set_responsive_mode(self, width, height):
 #        """Docstring."""
-# 
+#
 #        font_size = DEFAULT_FONT_SIZE
 #        if width < 1124 and height > 600:
 #            self.setIconSize(QSize(48, 48))
@@ -95,18 +92,18 @@ class MenuBar(QMenuBar):
 #            self.setIconSize(QSize(64, 64))
 #        stylesheet = 'QWidget{font-size: ' + str(font_size) + 'px;}'
 #        self.setStyleSheet(stylesheet)
-# 
+#
 #    def addAction(self, name, display_name, tool_text):
 #        """Docstring."""
-# 
+#
 #        action = QAction(QIcon(resource_filename('resources', 'images/')),
 #                         display_name, self, toolTip=tool_text)
 #        super().addAction(action)
 #        self.slots[name] = action
-# 
+#
 #    def connect(self, name, handler, shortcut=None):
 #        """Docstring."""
-# 
+#
 #        self.slots[name].pyqtConfigure(triggered=handler)
 #        if shortcut:
 #            self.slots[name].setShortcut(QKeySequence(shortcut))
@@ -164,7 +161,6 @@ class Window(QMainWindow):
         self.save_file_heading = "Save file"
         self.atlas_file_extension_for_saving = "Atlas (*.pmd.txt)"
 
-
     def setup(self):
         """Docstring."""
 
@@ -187,7 +183,7 @@ class Window(QMainWindow):
 
         actions = dict()
         menu_bar = self.menuBar()
-        
+
         # Portfolio
         portfolio_menu = menu_bar.addMenu("Portfolio")
         portfolio_menu.addAction(QAction("New portfolio", self))
@@ -202,7 +198,7 @@ class Window(QMainWindow):
 
         # File
         file_menu = menu_bar.addMenu("File")
-        
+
         new_file = QAction("New file", self)
         new_file.setShortcut("Ctrl+N")
         file_menu.addAction(new_file)
@@ -221,7 +217,7 @@ class Window(QMainWindow):
         save_file_as = QAction("Save file as", self)
         file_menu.addAction(save_file_as)
         actions['save_file_as'] = save_file_as
-        
+
         close_file = QAction("Close file", self)
         close_file.setShortcut("Ctrl+W")
         file_menu.addAction(close_file)
@@ -263,7 +259,8 @@ class Window(QMainWindow):
         task_menu.addAction(mark_task_done)
         actions['mark_task_done'] = mark_task_done
 
-        mark_task_for_rescheduling = QAction("Mark task for rescheduling", self)
+        mark_task_for_rescheduling = QAction("Mark task for rescheduling",
+                                             self)
         mark_task_for_rescheduling.setShortcut("Alt+R")
         task_menu.addAction(mark_task_for_rescheduling)
         actions['mark_task_for_rescheduling'] = mark_task_for_rescheduling
@@ -383,14 +380,18 @@ class Window(QMainWindow):
 
         extensions = '*' + extensions
         path, _ = QFileDialog.getOpenFileName(self.widget,
-            self.open_file_heading, folder, extensions)
+                                              self.open_file_heading,
+                                              folder,
+                                              extensions)
         return path
 
     def get_save_file_path(self, folder):
         """Get the path of the file to save (dialog)."""
 
-        path, _ = QFileDialog.getSaveFileName(self.widget,
-            self.open_file_heading, folder, self.atlas_file_extension_for_saving)
+        path, _ = QFileDialog.getSaveFileName(
+                self.widget,
+                self.open_file_heading, folder,
+                self.atlas_file_extension_for_saving)
         return path
 
     def add_tab(self, path, text, newline):
@@ -470,15 +471,15 @@ class Window(QMainWindow):
         message_box.setStandardButtons(message_box.Cancel | message_box.Ok)
         message_box.setDefaultButton(message_box.Cancel)
         return message_box.exec()
-    
+
     def show_yes_no_question(self, message, information=None):
         """Ask the user a yes/no/cancel question.
-        
+
         Answering 'Yes' allows for performing a certain action; answering 'No'
         allows for not performing the same action. Answering with 'Cancel'
         aborts the question and goes back to normal program operation mode so
         that the user can make their decision in that mode before proceeding.
-        
+
         """
 
         message_box = QMessageBox(self)

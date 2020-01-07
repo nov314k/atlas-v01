@@ -5,14 +5,15 @@ import sys
 import datetime
 # from calfs.get_coming_events import get_coming_events
 
+
 def prepare_todays_tasks(day, month, year, settings_file):
     """Docstring."""
 
-    config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
-    config.read(settings_file)                                          
-    cfg = config['USER']    
+    config = configparser.ConfigParser(
+            interpolation=configparser.ExtendedInterpolation())
+    config.read(settings_file)
+    cfg = config['USER']
 
-    portfolio_base_dir = cfg['portfolio_base_dir']
     portfolio_files = cfg['portfolio_files'].split('\n')
     daily_file = cfg['daily_file']
     booked_file = cfg['booked_file']
@@ -69,9 +70,13 @@ def prepare_todays_tasks(day, month, year, settings_file):
         sorted_tasks = []
         for token in tokens_in_sorting_order:
             for task in tasks:
-                if cat_prefix in token and token in task and task not in sorted_tasks:
+                if (cat_prefix in token
+                        and token in task
+                        and task not in sorted_tasks):
                     sorted_tasks.append(task)
-                elif token in task and task not in sorted_tasks and cat_prefix not in task:
+                elif (token in task
+                        and task not in sorted_tasks
+                        and cat_prefix not in task):
                     sorted_tasks.append(task)
         return sorted_tasks
 
@@ -92,8 +97,8 @@ def prepare_todays_tasks(day, month, year, settings_file):
         if task[6:6 + 10] <= today_str:
             new_tasks.append(task[:len(task) - 1])
     for task in periodic_tasks:
-        if task[0] != done_task_prefix and \
-            task[6:6 + 10] <= today_str:
+        if (task[0] != done_task_prefix
+                and task[6:6 + 10] <= today_str):
             new_tasks.append(task[:len(task) - 1])
 
     sorted_tasks = sort_tasks(new_tasks)
