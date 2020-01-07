@@ -501,16 +501,19 @@ class Window(QMainWindow):
             title += " - " + filename
         self.setWindowTitle(title)
 
-    def size_window(self, x=None, y=None, w=None, h=None):
-        """Docstring."""
+    def size_window(self, x, y, width_ratio, height_ratio):
+        """Set size and position the top level window.
+
+        Size and position values are defined in the configuration file.
+        x and y coordinates are given as absolute values, while width and
+        height ratios are less-than or equal-to 1.
+ 
+        """
 
         screen_width, screen_height = screen_size()
-        w = int(screen_width * 0.8) if w is None else w
-        h = int(screen_height * 0.8) if h is None else h
-        self.resize(w, h)
-        size = self.geometry()
-        x = (screen_width - size.width()) / 2 if x is None else x
-        y = (screen_height - size.height()) / 2 if y is None else y
+        width = screen_width * width_ratio
+        height = screen_height * height_ratio
+        self.resize(width, height)
         self.move(x, y)
 
     def resize_event(self, resize_event):

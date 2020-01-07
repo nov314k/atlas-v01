@@ -131,13 +131,11 @@ class Editor:
     def restore_view(self):
         """Function docstring."""
 
-        # with open(self.cfg['atlas_session_file']) as view_file:
-        #    view = json.load(view_file)
-        # view = "{'x': 0, 'y': 27, 'w': 1366, 'h': 680}"
-        # old_window = view.get(self.cfg['window'], {})
-        # old_window=self.cfg['window']
-        # self._view.size_window(**old_window)
-        pass
+        self._view.size_window(
+                self.cfg.getint('x_coord'),
+                self.cfg.getint('y_coord'),
+                self.cfg.getfloat('width_ratio'),
+                self.cfg.getfloat('height_ratio'))
 
     def setup_menu(self):
         """Set up the drop-down menu.
@@ -1191,7 +1189,7 @@ class Editor:
         :returns string: task text
         """
 
-        words = task.split(self.settings['space'][1])
+        words = task.split(self.cfg['space'][1])
         task_text = ''
         for word in words:
             # Beware of special letters (and words beginning with them)
