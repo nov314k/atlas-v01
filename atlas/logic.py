@@ -122,10 +122,7 @@ class Editor:
     def setup(self):
         """Function docstring."""
 
-#        self.get_settings(portfolio_file)
         self.setup_menu()
-#        self._view.setup_menu([self._prkno])
-#        self.setup_button_bar(self.mode)
         self.open_portfolio()
 
     def setup_menu(self):
@@ -330,7 +327,6 @@ class Editor:
                 if tab_path == normalised_path:
                     self._view.focus_tab(tab)
                     return tab
-#        self.direct_load_file(path)
         return self._view.current_tab
 
     def quit(self, fixme):
@@ -872,7 +868,6 @@ class Editor:
         tasks = tab.text().split(NEWLINE)
         start_time = datetime.datetime.now()
         scheduled_tasks = []
-#        found_first_task = False
         for task in tasks:
             if task:
                 task = re.sub(r'\d{2}:\d{2}' + self.cfg['space'][1], "", task)
@@ -907,7 +902,6 @@ class Editor:
                       "from a daily tasks file."
             self._view.show_message(message)
             return
-#        ctab_idx = self._view.tabs.indexOf(ctab)
         tasks = ctab.text().split(NEWLINE)
         for task in tasks:
             if self.cfg['earned_time_balance_form'] in task:
@@ -929,7 +923,6 @@ class Editor:
                 curr_stamp = datetime.datetime.now()
                 current_tab_index = self._view.tabs.indexOf(
                         self._view.current_tab)
-                # ~ current_tab_path = self._view.current_tab.path
                 self._view.tabs.setCurrentIndex(log_tab_index)
                 log_tab = self._view.tabs.widget(log_tab_index)
                 lines = log_tab.text().split(NEWLINE)
