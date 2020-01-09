@@ -3,7 +3,7 @@
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtWidgets import (QAction, QDesktopWidget, QWidget, QVBoxLayout,
                              QTabWidget, QFileDialog, QMessageBox, QMainWindow,
-                             QStatusBar, QShortcut, QMenuBar)
+                             QShortcut)
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtGui import QIcon
 from pkg_resources import resource_filename
@@ -13,6 +13,7 @@ from view.add_adhoc_task_dialog import AddAdhocTaskDialog
 from view.editor_pane import EditorPane
 from view.menu_bar import MenuBar
 from view.file_tabs import FileTabs
+
 
 def screen_size():
     """Docstring."""
@@ -437,15 +438,6 @@ class TopLevelWindow(QMainWindow):
         """Docstring."""
 
         log_entry = LogProgressDialog(self)
-        log_entry.setup()
-        if log_entry.exec():
-            return log_entry.log_entry()
-        return None
-
-    def show_log_expense(self):
-        """Docstring."""
-
-        log_entry = LogExpenseDialog(self)
         log_entry.setup()
         if log_entry.exec():
             return log_entry.log_entry()

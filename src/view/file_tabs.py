@@ -1,16 +1,6 @@
 """Docstring."""
 
-from PyQt5.QtCore import Qt, pyqtSignal, QTimer
-from PyQt5.QtWidgets import (QAction, QDesktopWidget, QWidget, QVBoxLayout,
-                             QTabWidget, QFileDialog, QMessageBox, QMainWindow,
-                             QStatusBar, QShortcut, QMenuBar)
-from PyQt5.QtGui import QKeySequence
-from PyQt5.QtGui import QIcon
-from pkg_resources import resource_filename
-from view.prepare_day_dialog import PrepareDayDialog
-from view.log_progress_dialog import LogProgressDialog
-from view.add_adhoc_task_dialog import AddAdhocTaskDialog
-from view.editor_pane import EditorPane
+from PyQt5.QtWidgets import QTabWidget
 
 
 class FileTabs(QTabWidget):
@@ -41,4 +31,3 @@ class FileTabs(QTabWidget):
             window.update_title(current_tab.label)
         else:
             window.update_title(None)
-

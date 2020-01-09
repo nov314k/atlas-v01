@@ -5,9 +5,6 @@ AddAdhocTaskDialog.
 
 """
 
-import json
-from PyQt5.QtWidgets import QCheckBox
-from PyQt5.QtWidgets import QComboBox
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QDialogButtonBox
 from PyQt5.QtWidgets import QLabel

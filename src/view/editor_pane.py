@@ -2,10 +2,9 @@
 
 import os
 import os.path
-import re
 from PyQt5.Qsci import QsciScintilla
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QApplication
 
 from view.font import Font
