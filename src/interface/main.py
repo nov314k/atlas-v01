@@ -505,18 +505,3 @@ class Window(QMainWindow):
         if adhoc_task.exec():
             return adhoc_task.adhoc_task()
         return None
-
-
-class StatusBar(QStatusBar):
-    """Docstring."""
-
-    def __init__(self, parent=None):
-        """Docstring."""
-
-        # Keep this despite pylint (useless-super-delegation)
-        super().__init__(parent)
-
-    def set_message(self, message, pause=5000):
-        """Docstring."""
-
-        self.showMessage(message, pause)
