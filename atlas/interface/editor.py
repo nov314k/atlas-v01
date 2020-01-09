@@ -7,7 +7,7 @@ import re
 # from collections import defaultdict
 # from PyQt5.Qsci import (QsciScintilla, QsciLexerPython, QsciLexerHTML,
 #                         QsciAPIs, QsciLexerCSS, QsciLexerCustom)
-from PyQt5.Qsci import QsciScintilla, QsciLexerCustom
+from PyQt5.Qsci import QsciScintilla
 # from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QColor, QFont
@@ -17,75 +17,16 @@ from interface.font import Font
 from logic import NEWLINE
 
 
-def language():
-    """Docstring."""
-
-    return 'pmd.txt'
-
-
-def description():
-    """Docstring."""
-
-    return 'pmd.txt'
-
-
-class PmdTxtLexer(QsciLexerCustom):
-    """Docstring."""
-
-    def __init__(self, parent):
-        """Docstring."""
-
-        super(PmdTxtLexer, self).__init__(parent)
-        self.setDefaultColor(QColor('#000000'))
-        self.setDefaultPaper(QColor('#ffffff'))
-        self.setDefaultFont(QFont('Courier', 8))
-
-        # Initialize colors per style
-        self.setColor(QColor('#000000'), 0)   # Black
-        self.setColor(QColor('#F70D1A'), 1)   # Ferrari Red
-        self.setColor(QColor('#3BB9FF'), 2)   # Deep Sky Blue
-        self.setColor(QColor('#CD7F32'), 3)   # Bronze
-        self.setColor(QColor('#728C00'), 4)   # Venom Green
-        self.setColor(QColor('#008080'), 5)   # Teal Green
-
-        # Initialize paper colors per style
-        self.setPaper(QColor('#ffffff'), 0)
-        self.setPaper(QColor('#E5E4E2'), 1)    # Platinum
-        self.setPaper(QColor('#ffffff'), 2)
-        self.setPaper(QColor('#ffffff'), 3)
-        self.setPaper(QColor('#ffffff'), 4)
-
-        # Initialize fonts per style
-        self.setFont(QFont('Courier', 8), 0)
-        self.setFont(QFont('Courier', 8), 1)
-        self.setFont(QFont('Courier', 8), 2)
-        self.setFont(QFont('Courier', 8), 3)
-        self.setFont(QFont('Courier', 8), 4)
-
-    def style_text(self, start, end):
-        """Docstring."""
-
-        self.startStyling(start)
-        text = self.parent().text()[start:end]
-        prec = re.compile(r'[*]\/|\/[*]|\s+|\w+|\W')
-        token_list = [(token, len(bytearray(token, 'utf-8')))
-                      for token in prec.findall(text)]
-        for _, token in enumerate(token_list):
-            if token[0] == '#':
-                self.setStyling(token[1], 1)
-            elif token[0] == '>':
-                self.setStyling(token[1], 2)
-            elif token[0] in ['dow', 'due', 'rec']:
-                self.setStyling(token[1], 4)
-            elif token[0] in ['booked', 'daily', 'infra', 'incoming', 'work',
-                              'periodic', 'shlist', 'stroth', 'study',
-                              'weekly', 'calMaja', 'calCrkveni', 'calPhases',
-                              'calAustralia', '+']:
-                self.setStyling(token[1], 5)
-            elif token[0] in ['dur']:
-                self.setStyling(token[1], 3)
-            else:
-                self.setStyling(token[1], 0)
+#def language():
+#    """Docstring."""
+#
+#    return 'pmd.txt'
+#
+#
+#def description():
+#    """Docstring."""
+#
+#    return 'pmd.txt'
 
 
 class EditorPane(QsciScintilla):
@@ -104,8 +45,6 @@ class EditorPane(QsciScintilla):
         self.previous_selection = {
             'line_start': 0, 'col_start': 0, 'line_end': 0, 'col_end': 0
         }
-        if self.path:
-            self.lexer = PmdTxtLexer(self)
         self.setModified(False)
         # ~ self.breakpoint_handles = set()
         self.setMarginLineNumbers(0, True)
