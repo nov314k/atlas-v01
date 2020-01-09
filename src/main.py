@@ -5,7 +5,7 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QPalette
 from PyQt5.QtWidgets import QApplication
 from view.main import Window
-from logic import Editor
+from model.logic import Editor
 
 
 def run():

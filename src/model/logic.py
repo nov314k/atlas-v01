@@ -33,7 +33,7 @@ import shutil
 import sys
 from dateutil.relativedelta import relativedelta
 from PyQt5.QtWidgets import QMessageBox
-import prepare_todays_tasks
+import model.prepare_todays_tasks
 
 
 LINE_ENDING = '\n'

@@ -9,7 +9,7 @@ from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtWidgets import QApplication
 
 from view.font import Font
-from logic import NEWLINE
+from model.logic import NEWLINE
 
 
 class EditorPane(QsciScintilla):

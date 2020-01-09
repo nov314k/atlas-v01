@@ -6,6 +6,7 @@ Scripts
 pyvenv.cfg
 src/__pycache__
 src/view/__pycache__
+src/model/__pycache__
 src/resources/__pycache__
 test-portfolio
 atlas.log
