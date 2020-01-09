@@ -100,6 +100,7 @@ class Editor:
         self._status_bar = status_bar
         self.current_path = ''
         self.mode = WORKING_MODE
+        self.config_file = settings_file
         self.read_settings_file(settings_file)
 
     def read_settings_file(self, settings_file):
@@ -117,6 +118,7 @@ class Editor:
         self.active_task_prefixes = (
                 self.cfg['active_task_prefixes'].split('\n'))
         self.portfolio_files = self.cfg['portfolio_files'].split('\n')
+        print(self.cfg['test'])
 
     def setup(self):
         """Function docstring."""
@@ -356,7 +358,7 @@ class Editor:
             user_chose_yes_or_no = self.close_file()
             if not user_chose_yes_or_no:
                 return
-        # self.save_session_settings()
+        self.save_session_settings()
         sys.exit(0)
 
     def goto_tab_left(self):
@@ -1312,16 +1314,17 @@ class Editor:
         return False
 
     def save_session_settings(self):
-        session = {
-            'window': {
-                'x': self._view.x(),
-                'y': self._view.y(),
-                'w': self._view.width(),
-                'h': self._view.height(),
-            }
-        }
-        with open(self.cfg['atlas_session_file'], 'w') as out:
-            json.dump(session, out, indent=2)
+        x = self._view.x()
+        y = self._view.y()
+        w = self._view.width()
+        h = self._view.height()
+        self.config.set('USER', 'x_coord', '10')
+        self.config.set('USER', 'y_coord', '10')
+        self.config.set('USER', 'width_ratio', '0.6')
+        self.config.set('USER', 'height_ratio', '0.6')
+        # TODO Rename settings_file to config_file
+        with open(self.config_file, 'w') as config_file:
+            self.config.write(config_file, False)
 
     def word_has_active_task_prefix(self, word):
         if (len(word) == 1

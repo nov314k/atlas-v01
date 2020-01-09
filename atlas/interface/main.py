@@ -145,7 +145,6 @@ class Window(QMainWindow):
     title = "Atlas"
     icon = 'icon'
     timer = None
-    # ~ plotter = None
     open_file = pyqtSignal(str)
     previous_folder = None
 
