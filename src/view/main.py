@@ -10,7 +10,7 @@ from pkg_resources import resource_filename
 from view.prepare_day_dialog import PrepareDayDialog
 from view.log_progress_dialog import LogProgressDialog
 from view.add_adhoc_task_dialog import AddAdhocTaskDialog
-from view.editor import EditorPane
+from view.editor_pane import EditorPane
 
 
 def screen_size():
