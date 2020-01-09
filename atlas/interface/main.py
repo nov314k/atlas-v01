@@ -81,7 +81,6 @@ class Window(QMainWindow):
         self.widget = QWidget()
         self.read_only_tabs = False
         self.menu_bar = MenuBar(self.widget)
-        self.status_bar = StatusBar(parent=self)
         self.tabs = FileTabs()
         self.open_file_heading = "Open file"
         self.save_file_heading = "Save file"
@@ -100,7 +99,6 @@ class Window(QMainWindow):
         self.widget.setLayout(widget_layout)
         self.tabs.setMovable(True)
         self.setCentralWidget(self.tabs)
-        self.setStatusBar(self.status_bar)
         self.showMaximized()
 
     def setup_menu(self, functions):

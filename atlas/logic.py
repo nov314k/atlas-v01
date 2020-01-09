@@ -65,12 +65,10 @@ class Editor:
         Application main window.
     settings_file : str
         JSON file with portfolio settings.
-    status_bar : interface.StatusBar (QStatusBar)
-        Main window status bar. The default in None.
 
     """
 
-    def __init__(self, view, settings_file, status_bar=None):
+    def __init__(self, view, settings_file):
         """Initiates Editor instance variables.
 
         Parameters
@@ -79,8 +77,6 @@ class Editor:
             Application main window.
         settings_file : str
             JSON file with portfolio settings.
-        status_bar : interface.StatusBar (QStatusBar)
-            Main window status bar. The default in None.
 
         Notes
         -----
@@ -97,7 +93,6 @@ class Editor:
         self.encoding = 'UTF-8'
         self.line_ending = LINE_ENDING
         self._view = view
-        self._status_bar = status_bar
         self.current_path = ''
         self.mode = WORKING_MODE
         self.config_file = settings_file
@@ -1273,18 +1268,6 @@ class Editor:
                                  + new_due.strftime("%Y-%m-%d"),
                                  periodic_task))
         return updated_periodic_task
-
-    def show_status_message(self, message, duration=5):
-        """Show a textual message in status bar for a numberof seconds.
-
-        Parameters
-        ----------
-        message : str
-            Message text to show.
-
-        """
-
-        self._view.status_bar.set_message(message, duration * 1000)
 
     def props_in_word(self, word):
         """Check if a property definition is contained in `word`."""
