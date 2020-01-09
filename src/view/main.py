@@ -7,9 +7,10 @@ from PyQt5.QtWidgets import (QAction, QDesktopWidget, QWidget, QVBoxLayout,
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtGui import QIcon
 from pkg_resources import resource_filename
-from interface.dialogs import (PrepareDayDialog, LogProgressDialog,
-                               LogExpenseDialog, AddAdhocTaskDialog)
-from interface.editor import EditorPane
+from view.prepare_day_dialog import PrepareDayDialog
+from view.log_progress_dialog import LogProgressDialog
+from view.add_adhoc_task_dialog import AddAdhocTaskDialog
+from view.editor import EditorPane
 
 
 def screen_size():

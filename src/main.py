@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QPalette
 from PyQt5.QtWidgets import QApplication
-from interface.main import Window
+from view.main import Window
 from logic import Editor
 
 

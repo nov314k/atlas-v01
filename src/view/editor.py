@@ -1,19 +1,14 @@
 """Docstring."""
 
-# import keyword
 import os
 import os.path
 import re
-# from collections import defaultdict
-# from PyQt5.Qsci import (QsciScintilla, QsciLexerPython, QsciLexerHTML,
-#                         QsciAPIs, QsciLexerCSS, QsciLexerCustom)
 from PyQt5.Qsci import QsciScintilla
-# from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtWidgets import QApplication
 
-from interface.font import Font
+from view.font import Font
 from logic import NEWLINE
 
 
