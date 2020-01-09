@@ -118,26 +118,15 @@ class Editor:
         self.active_task_prefixes = (
                 self.cfg['active_task_prefixes'].split('\n'))
         self.portfolio_files = self.cfg['portfolio_files'].split('\n')
-        print(self.cfg['test'])
 
     def setup(self):
         """Function docstring."""
 
 #        self.get_settings(portfolio_file)
-        self.restore_view()
         self.setup_menu()
 #        self._view.setup_menu([self._prkno])
 #        self.setup_button_bar(self.mode)
         self.open_portfolio()
-
-    def restore_view(self):
-        """Function docstring."""
-
-        self._view.size_window(
-                self.cfg.getint('x_coord'),
-                self.cfg.getint('y_coord'),
-                self.cfg.getfloat('width_ratio'),
-                self.cfg.getfloat('height_ratio'))
 
     def setup_menu(self):
         """Set up the drop-down menu.

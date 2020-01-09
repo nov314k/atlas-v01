@@ -500,27 +500,6 @@ class Window(QMainWindow):
             title += " - " + filename
         self.setWindowTitle(title)
 
-    def size_window(self, x, y, width_ratio, height_ratio):
-        """Set size and position the top level window.
-
-        Size and position values are defined in the configuration file.
-        x and y coordinates are given as absolute values, while width and
-        height ratios are less-than or equal-to 1.
- 
-        """
-
-        screen_width, screen_height = screen_size()
-        width = screen_width * width_ratio
-        height = screen_height * height_ratio
-        self.resize(width, height)
-        self.move(x, y)
-
-    def resize_event(self, resize_event):
-        """Docstring."""
-
-        size = resize_event.size()
-        self.button_bar.set_responsive_mode(size.width(), size.height())
-
     def change_mode(self):
         """Docstring."""
 
