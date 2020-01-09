@@ -503,7 +503,7 @@ class Editor:
         """Function docstring."""
 
         if (len(task) < 1
-                or task[0] not in self.cfg['active_task_prefixes'].split('\n')
+                or task[0] not in self.active_task_prefixes
                 or self.cfg['daily_rec_prop_val'] in task):
             return
         idx = -1
@@ -1198,8 +1198,8 @@ class Editor:
                     or self.word_has_reserved_word_prefix(word)):
                 pass
             else:
-                task_text += word + self.cfg['space']
-        return task_text.rstrip(self.cfg['space'])
+                task_text += word + self.cfg['space'][1]
+        return task_text.rstrip(self.cfg['space'][1])
 
     def running_from_daily_tasks_file(self, tab):
         """Check if the command is issued while a daily tasks tab is active.
