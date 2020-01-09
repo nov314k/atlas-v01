@@ -11,7 +11,8 @@ from view.prepare_day_dialog import PrepareDayDialog
 from view.log_progress_dialog import LogProgressDialog
 from view.add_adhoc_task_dialog import AddAdhocTaskDialog
 from view.editor_pane import EditorPane
-
+from view.menu_bar import MenuBar
+from view.file_tabs import FileTabs
 
 def screen_size():
     """Docstring."""

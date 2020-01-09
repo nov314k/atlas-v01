@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QPalette
 from PyQt5.QtWidgets import QApplication
-from view.main import Window
+from view.top_level_window import TopLevelWindow
 from model.logic import Editor
 
 
@@ -27,7 +27,7 @@ def run():
         palette.setColor(QPalette.Button, QColor(128, 128, 00))
         app.setPalette(palette)
 
-    editor_window = Window()
+    editor_window = TopLevelWindow()
     # editor_window.menuBar().addMenu("&File")
     editor = Editor(editor_window, portfolio_file)
     editor_window.closeEvent = editor.quit
