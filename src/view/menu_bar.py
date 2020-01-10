@@ -16,7 +16,10 @@ class MenuBar(QMenuBar):
     def __init__(self, parent):
         """Docstring."""
 
-        super().__init__(parent)
+        # Uncommenting this results in a Gtk-Message:
+        # GtkDialog mapped without a transient parent. This is discouraged.
+        # super().__init__(parent)
+        pass
 
     def setup(self):
         """Docstring."""

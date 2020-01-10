@@ -32,6 +32,7 @@ import re
 import shutil
 import sys
 from dateutil.relativedelta import relativedelta
+from pathlib import Path
 from PyQt5.QtWidgets import QMessageBox
 import model.prepare_todays_tasks
 
@@ -95,8 +96,8 @@ class Editor:
         self._view = view
         self.current_path = ''
         self.mode = WORKING_MODE
-        self.config_file = settings_file
-        self.read_settings_file(settings_file)
+        self.config_file = Path(settings_file)
+        self.read_settings_file(self.config_file)
 
     def read_settings_file(self, settings_file):
         """Read portfolio JSON settins file and store settings
@@ -779,7 +780,7 @@ class Editor:
             str(danas.day), str(danas.month), str(danas.year))
         if result:
             target_day, target_month, target_year = result
-            prepare_todays_tasks.prepare_todays_tasks(
+            model.prepare_todays_tasks.prepare_todays_tasks(
                 target_day, target_month, target_year,
                 self.cfg['atlas_settings_file'])
         else:
