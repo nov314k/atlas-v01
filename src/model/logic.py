@@ -782,7 +782,7 @@ class Editor:
             target_day, target_month, target_year = result
             model.prepare_todays_tasks.prepare_todays_tasks(
                 target_day, target_month, target_year,
-                self.cfg['atlas_settings_file'])
+                self.cfg['atlas_config_file'])
         else:
             return
         file_name = str(target_year)
