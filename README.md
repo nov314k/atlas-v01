@@ -4,5 +4,6 @@ This repository is not actively maintained.
 
 Its only purpose is historical.
 
-Have a look at the [current Atlas repository](https://github.com/nov314k/atlas).
+Here are some [screen shots](docs/screen-shots.md)
 
+Have a look at the [current Atlas repository](https://github.com/nov314k/atlas).
